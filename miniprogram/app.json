@@ -5,7 +5,8 @@
     "pages/detail/detail",
     "pages/reward-shop/reward-shop",
     "pages/children/children",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/reward-manage/reward-manage"
   ],
   "window": {
     "backgroundTextStyle": "light",

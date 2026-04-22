@@ -71,7 +71,7 @@ class RedemptionResponse(BaseModel):
     reward_item_id: UUID
     reward_name: str
     coins_spent: int
-    status: str
+    remaining_balance: int
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -81,11 +81,6 @@ class RedemptionListResponse(BaseModel):
     """兑换记录列表响应"""
     records: list[RedemptionResponse]
     total: int
-
-
-class RedemptionStatusUpdate(BaseModel):
-    """更新兑换状态请求"""
-    status: str = Field(..., pattern="^(approved|rejected|completed)$", description="状态")
 
 
 # ============================================

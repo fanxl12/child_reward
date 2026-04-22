@@ -91,23 +91,14 @@ class RedemptionRecord(Base):
     )
     reward_name: Mapped[str] = mapped_column(String(100), nullable=False)
     coins_spent: Mapped[int] = mapped_column(Integer, nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
-    approved_by: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
-    )
+    remaining_balance: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     __table_args__ = (
         CheckConstraint("coins_spent > 0", name="check_coins_spent_positive"),
-        CheckConstraint(
-            "status IN ('pending', 'approved', 'rejected', 'completed')",
-            name="check_redemption_status_valid"
-        ),
+        CheckConstraint("remaining_balance >= 0", name="check_remaining_balance_positive"),
     )
 
     # 关联关系
@@ -115,7 +106,7 @@ class RedemptionRecord(Base):
     reward_item: Mapped["RewardItem"] = relationship("RewardItem")
 
     def __repr__(self) -> str:
-        return f"<RedemptionRecord {self.reward_name} status={self.status}>"
+        return f"<RedemptionRecord {self.reward_name} coins_spent={self.coins_spent}>"
 
 
 # 避免循环导入

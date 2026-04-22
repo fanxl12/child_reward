@@ -80,6 +80,14 @@
   gap: 16rpx;
 }
 
+.shop-grid .empty-state {
+  width: 100%;
+}
+
+.empty-state-text {
+  text-align: center;
+}
+
 .shop-item {
   width: calc(50% - 8rpx);
   background: var(--color-bg-card);
@@ -90,6 +98,7 @@
   flex-direction: column;
   align-items: center;
   transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .shop-item:active {
@@ -257,25 +266,9 @@
   color: var(--color-danger);
 }
 
-.history-status {
+.history-balance {
   font-size: 22rpx;
-  padding: 4rpx 16rpx;
-  border-radius: var(--radius-full);
-}
-
-.status-pending {
-  background: var(--color-warning-light);
-  color: var(--color-warning);
-}
-
-.status-approved, .status-completed {
-  background: var(--color-success-light);
-  color: var(--color-success);
-}
-
-.status-rejected {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
+  color: var(--color-text-hint);
 }
 
 /* 图标选择器 */

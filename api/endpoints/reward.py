@@ -19,7 +19,6 @@ from api.schemas.reward import (
     RedeemRequest,
     RedemptionResponse,
     RedemptionListResponse,
-    RedemptionStatusUpdate,
     CoinTransactionResponse,
     CoinBalanceResponse,
 )
@@ -250,7 +249,7 @@ async def redeem_reward(
         reward_item_id=reward_item.id,
         reward_name=reward_item.name,
         coins_spent=reward_item.coin_cost,
-        status="pending",
+        remaining_balance=child.coin_balance,
     )
     db.add(redemption)
     
@@ -303,62 +302,3 @@ async def list_redemptions(
         records=[RedemptionResponse.model_validate(r) for r in records],
         total=total,
     )
-
-
-@coin_router.put("/redemptions/{redemption_id}", response_model=RedemptionResponse)
-async def update_redemption_status(
-    child_id: UUID,
-    redemption_id: UUID,
-    request: RedemptionStatusUpdate,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """
-    更新兑换记录状态（家长审批）
-    
-    - **status**: approved（通过）/ rejected（拒绝）/ completed（已完成）
-    
-    拒绝兑换时会退回奖励币。
-    """
-    child = await _verify_child(child_id, current_user.id, db)
-    
-    result = await db.execute(
-        select(RedemptionRecord).where(
-            RedemptionRecord.id == redemption_id,
-            RedemptionRecord.child_id == child_id,
-        )
-    )
-    redemption = result.scalar_one_or_none()
-    
-    if not redemption:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="未找到该兑换记录",
-        )
-    
-    if redemption.status != "pending" and request.status != "completed":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"当前状态 {redemption.status} 不允许此操作",
-        )
-    
-    # 如果拒绝，退回奖励币
-    if request.status == "rejected":
-        child.coin_balance += redemption.coins_spent
-        
-        refund_transaction = CoinTransaction(
-            child_id=child_id,
-            type="earn",
-            amount=redemption.coins_spent,
-            balance_after=child.coin_balance,
-            description=f"兑换退回：{redemption.reward_name}",
-        )
-        db.add(refund_transaction)
-    
-    redemption.status = request.status
-    redemption.approved_by = current_user.id
-    
-    await db.flush()
-    await db.refresh(redemption)
-    
-    return RedemptionResponse.model_validate(redemption)

@@ -28,7 +28,7 @@
     </view>
     <view class="menu-item" bindtap="goToRewardShop">
       <text class="menu-icon">🏪</text>
-      <text class="menu-label">奖励商城设置</text>
+      <text class="menu-label">奖励商品设置</text>
       <text class="menu-arrow">›</text>
     </view>
   </view>

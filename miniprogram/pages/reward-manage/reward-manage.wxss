@@ -1,0 +1,207 @@
+/* 奖励商品管理样式 */
+
+.page-reward-manage {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+/* 管理列表 */
+.manage-list {
+  padding: 24rpx 32rpx 0;
+}
+
+.manage-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  margin-bottom: 12rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.manage-item-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.manage-icon {
+  font-size: 40rpx;
+}
+
+.manage-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.manage-name {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.manage-cost {
+  font-size: 24rpx;
+  color: var(--color-coin-dark);
+  font-weight: 600;
+}
+
+.manage-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.manage-btn {
+  padding: 8rpx 24rpx;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-full);
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+}
+
+.manage-btn-danger {
+  color: var(--color-danger);
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 32rpx;
+}
+
+.empty-state-icon {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+
+.empty-state-text {
+  font-size: 28rpx;
+  color: var(--color-text-hint);
+  margin-bottom: 8rpx;
+}
+
+/* 图标选择器 */
+.icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.icon-option {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-section);
+  border: 3rpx solid transparent;
+}
+
+.icon-selected {
+  border-color: var(--color-primary);
+  background: rgba(255, 123, 107, 0.1);
+}
+
+/* 弹窗样式 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 600rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 2rpx solid var(--color-border);
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: var(--color-text-hint);
+  padding: 0 8rpx;
+}
+
+.form-item {
+  padding: 24rpx 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-md);
+  font-size: 28rpx;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+  line-height: 80rpx;
+}
+
+.form-input::placeholder {
+  color: var(--color-text-hint);
+  font-size: 28rpx;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 32rpx 32rpx;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: var(--radius-full);
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-primary);
+}
+
+.btn-secondary {
+  background: var(--color-bg-section);
+  color: var(--color-text-primary);
+  border: 2rpx solid var(--color-border);
+}

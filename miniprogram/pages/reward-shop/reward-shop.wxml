@@ -21,9 +21,6 @@
     <view class="toggle-option {{viewMode === 'shop' ? 'toggle-active' : ''}}" bindtap="switchView" data-mode="shop">
       兑换商城
     </view>
-    <view class="toggle-option {{viewMode === 'manage' ? 'toggle-active' : ''}}" bindtap="switchView" data-mode="manage">
-      商品管理
-    </view>
     <view class="toggle-option {{viewMode === 'history' ? 'toggle-active' : ''}}" bindtap="switchView" data-mode="history">
       兑换记录
     </view>
@@ -54,29 +51,8 @@
     <view class="empty-state" wx:if="{{activeItems.length === 0}}">
       <text class="empty-state-icon">🏪</text>
       <text class="empty-state-text">暂无奖励商品</text>
-      <text class="empty-state-text">请在「商品管理」中添加</text>
+      <text class="empty-state-text">请前往「我的-奖励商品设置」添加</text>
     </view>
-  </view>
-
-  <!-- 商品管理视图 -->
-  <view class="manage-view" wx:if="{{viewMode === 'manage'}}">
-    <view class="manage-list">
-      <view class="manage-item" wx:for="{{rewardItems}}" wx:key="id">
-        <view class="manage-item-left">
-          <text class="manage-icon">{{item.icon}}</text>
-          <view class="manage-info">
-            <text class="manage-name">{{item.name}}</text>
-            <text class="manage-cost">🪙 {{item.coin_cost}}</text>
-          </view>
-        </view>
-        <view class="manage-actions">
-          <view class="manage-btn" bindtap="onEditItem" data-item="{{item}}">编辑</view>
-          <view class="manage-btn manage-btn-danger" bindtap="onDeleteItem" data-item="{{item}}">删除</view>
-        </view>
-      </view>
-    </view>
-
-    <view class="btn-primary" style="margin: 32rpx;" bindtap="onShowAddItem">+ 添加奖励商品</view>
   </view>
 
   <!-- 兑换记录视图 -->
@@ -85,61 +61,17 @@
       <view class="history-item" wx:for="{{redemptions}}" wx:key="id">
         <view class="history-left">
           <text class="history-name">{{item.reward_name}}</text>
-          <text class="history-time">{{item.created_at}}</text>
+          <text class="history-time">{{item.formatted_time}}</text>
         </view>
         <view class="history-right">
           <text class="history-coins">-{{item.coins_spent}} 🪙</text>
-          <text class="history-status status-{{item.status}}">
-            {{item.status === 'pending' ? '待审批' : item.status === 'approved' ? '已通过' : item.status === 'completed' ? '已完成' : '已拒绝'}}
-          </text>
+          <text class="history-balance">剩余: {{item.remaining_balance}} 🪙</text>
         </view>
       </view>
     </view>
     <view class="empty-state" wx:if="{{redemptions.length === 0}}">
       <text class="empty-state-icon">📋</text>
       <text class="empty-state-text">暂无兑换记录</text>
-    </view>
-  </view>
-
-  <!-- 添加/编辑商品弹窗 -->
-  <view class="modal-mask" wx:if="{{showItemForm}}" bindtap="onCloseItemForm">
-    <view class="modal-content" catchtap>
-      <view class="modal-header">
-        <text class="modal-title">{{editingItem ? '编辑商品' : '添加商品'}}</text>
-        <view class="modal-close" bindtap="onCloseItemForm">✕</view>
-      </view>
-      
-      <view class="form-section">
-        <view class="form-item">
-          <text class="form-label">商品名称</text>
-          <input class="form-input" placeholder="如：看电视30分钟" value="{{itemForm.name}}" bindinput="onItemNameInput" />
-        </view>
-        <view class="form-item">
-          <text class="form-label">所需奖励币</text>
-          <input class="form-input" type="number" placeholder="如：10" value="{{itemForm.coin_cost}}" bindinput="onItemCostInput" />
-        </view>
-        <view class="form-item">
-          <text class="form-label">描述（选填）</text>
-          <input class="form-input" placeholder="商品描述" value="{{itemForm.description}}" bindinput="onItemDescInput" />
-        </view>
-        <view class="form-item">
-          <text class="form-label">图标</text>
-          <view class="icon-picker">
-            <view 
-              class="icon-option {{itemForm.icon === item ? 'icon-selected' : ''}}" 
-              wx:for="{{iconOptions}}" 
-              wx:key="index"
-              bindtap="onSelectIcon"
-              data-icon="{{item}}"
-            >{{item}}</view>
-          </view>
-        </view>
-      </view>
-
-      <view class="modal-footer">
-        <view class="btn-secondary" bindtap="onCloseItemForm">取消</view>
-        <view class="btn-primary" bindtap="onSaveItem">保存</view>
-      </view>
     </view>
   </view>
 

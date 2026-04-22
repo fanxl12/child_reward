@@ -19,7 +19,7 @@ Page({
   },
 
   goToRewardShop() {
-    wx.switchTab({ url: '/pages/reward-shop/reward-shop' });
+    wx.navigateTo({ url: '/pages/reward-manage/reward-manage' });
   },
 
   onEditProfile() {

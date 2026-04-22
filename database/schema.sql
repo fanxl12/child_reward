@@ -165,21 +165,16 @@ CREATE TABLE redemption_records (
     reward_item_id  UUID NOT NULL REFERENCES reward_items(id),
     reward_name     VARCHAR(100) NOT NULL,
     coins_spent     INTEGER NOT NULL CHECK (coins_spent > 0),
-    status          VARCHAR(20) NOT NULL DEFAULT 'pending' 
-                    CHECK (status IN ('pending', 'approved', 'rejected', 'completed')),
-    approved_by     UUID REFERENCES users(id),
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    remaining_balance INTEGER NOT NULL DEFAULT 0 CHECK (remaining_balance >= 0),
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_redemption_child_id ON redemption_records(child_id);
-CREATE INDEX idx_redemption_status ON redemption_records(status);
 
 COMMENT ON TABLE redemption_records IS '兑换记录表';
 COMMENT ON COLUMN redemption_records.reward_name IS '兑换时奖励名称快照';
 COMMENT ON COLUMN redemption_records.coins_spent IS '消耗奖励币数量';
-COMMENT ON COLUMN redemption_records.status IS '状态：pending/approved/rejected/completed';
-COMMENT ON COLUMN redemption_records.approved_by IS '审批家长 ID';
+COMMENT ON COLUMN redemption_records.remaining_balance IS '兑换后剩余奖励币余额';
 
 -- ============================================
 -- 更新时间自动触发器
