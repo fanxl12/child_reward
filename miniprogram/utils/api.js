@@ -1,8 +1,6 @@
 // ============================================
 // API 请求工具封装
 // ============================================
-const app = getApp();
-
 // 开发环境配置（根据实际情况修改）
 const DEV_BASE_URL = 'http://localhost:8000';
 // 生产环境配置
@@ -16,6 +14,7 @@ const BASE_URL = isDevelopment ? DEV_BASE_URL : PROD_BASE_URL;
  * 通用请求方法
  */
 function request(url, method = 'GET', data = {}) {
+  const app = getApp();
   return new Promise((resolve, reject) => {
     wx.request({
       url: `${BASE_URL}${url}`,
@@ -23,12 +22,14 @@ function request(url, method = 'GET', data = {}) {
       data,
       header: {
         'Content-Type': 'application/json',
-        'Authorization': app.globalData.token ? `Bearer ${app.globalData.token}` : ''
+        'Authorization': app && app.globalData && app.globalData.token ? `Bearer ${app.globalData.token}` : ''
       },
       success(res) {
         if (res.statusCode === 401) {
           // Token 失效，跳转登录
-          app.logout();
+          if (app && app.logout) {
+            app.logout();
+          }
           reject(new Error('登录已过期，请重新登录'));
           return;
         }
