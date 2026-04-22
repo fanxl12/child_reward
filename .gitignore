@@ -33,3 +33,10 @@ Thumbs.db
 # 微信开发者工具
 miniprogram/miniprogram_npm/
 miniprogram/node_modules/
+
+.qoder/
+
+api/.idea
+api/.venv
+api/__pycache__
+

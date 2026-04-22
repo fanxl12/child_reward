@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>童星记录 - 儿童表现记录系统</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* 主色 - 温馨珊瑚橙 */
+      --primary: 8 85% 62%;
+      --primary-foreground: 0 0% 100%;
+      --primary-light: 12 100% 82%;
+
+      /* 中性色 */
+      --background: 25 50% 98%;
+      --foreground: 240 10% 16%;
+      --card: 0 0% 100%;
+      --card-foreground: 240 10% 16%;
+
+      /* 次要色 */
+      --secondary: 220 14% 96%;
+      --secondary-foreground: 240 10% 16%;
+      --muted: 220 14% 96%;
+      --muted-foreground: 220 9% 46%;
+
+      /* 奖励币金色 */
+      --coin: 38 92% 55%;
+      --coin-light: 45 100% 93%;
+      --coin-dark: 35 85% 45%;
+
+      /* 成功绿色 */
+      --success: 152 55% 52%;
+      --success-light: 150 55% 94%;
+
+      /* 警告橙色 */
+      --warning: 35 92% 60%;
+      --warning-light: 40 100% 95%;
+
+      /* 破坏色 */
+      --destructive: 0 72% 63%;
+
+      /* 系统色 */
+      --border: 220 13% 91%;
+      --input: 220 13% 91%;
+      --ring: 8 85% 62%;
+      --radius: 0.75rem;
+
+      /* 渐变 */
+      --gradient-primary: linear-gradient(135deg, hsl(8, 85%, 62%), hsl(12, 100%, 82%));
+      --gradient-coin: linear-gradient(135deg, hsl(35, 85%, 45%), hsl(38, 92%, 55%));
+      --gradient-success: linear-gradient(135deg, hsl(152, 55%, 52%), hsl(160, 50%, 65%));
+
+      /* 阴影 */
+      --shadow-soft: 0 2px 8px hsl(0 0% 0% / 0.04);
+      --shadow-card: 0 4px 16px hsl(0 0% 0% / 0.06);
+      --shadow-elevated: 0 8px 32px hsl(0 0% 0% / 0.08);
+      --shadow-primary: 0 4px 16px hsl(8, 85%, 62%, 0.3);
+      --shadow-coin: 0 4px 16px hsl(38, 92%, 55%, 0.3);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+        'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #f8f0ed 0%, #fef5f3 50%, #f0f4ff 100%);
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    .title {
+      margin-bottom: 32px;
+    }
+
+    .title h1 {
+      font-size: 30px;
+      font-weight: bold;
+      letter-spacing: -0.025em;
+      color: hsl(8, 85%, 62%);
+    }
+
+    .title p {
+      margin-top: 8px;
+      font-size: 14px;
+      color: hsl(220, 9%, 46%);
+    }
+
+    /* 手机框架 */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                  0 0 0 1px rgba(0, 0, 0, 0.05);
+      position: relative;
+      background: hsl(var(--background));
+      margin: 0 auto;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: calc(100% - 80px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .phone-screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 底部导航 */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: hsl(var(--card));
+      border-top: 1px solid hsl(var(--border));
+      display: flex;
+      align-items: center;
+      padding-bottom: 16px;
+      z-index: 50;
+    }
+
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: hsl(var(--muted-foreground));
+    }
+
+    .tab-item.active {
+      color: hsl(var(--primary));
+    }
+
+    .tab-item:hover {
+      opacity: 0.8;
+    }
+
+    .tab-icon {
+      font-size: 22px;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* 页面内容 */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* 通用样式 */
+    .px-4 { padding-left: 16px; padding-right: 16px; }
+    .pt-4 { padding-top: 16px; }
+    .pt-5 { padding-top: 20px; }
+    .pt-6 { padding-top: 24px; }
+    .pb-5 { padding-bottom: 20px; }
+    .pb-6 { padding-bottom: 24px; }
+    .pb-24 { padding-bottom: 96px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-3 { margin-bottom: 12px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-8 { margin-bottom: 32px; }
+    .mt-1 { margin-top: 4px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .mt-8 { margin-top: 32px; }
+    .mt-\[-2px\] { margin-top: -2px; }
+
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .justify-around { justify-content: space-around; }
+    .gap-1 { gap: 4px; }
+    .gap-1\.5 { gap: 6px; }
+    .gap-2 { gap: 8px; }
+    .gap-2\.5 { gap: 10px; }
+    .gap-3 { gap: 12px; }
+    .gap-8 { gap: 32px; }
+    .flex-1 { flex: 1; }
+
+    .grid { display: grid; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .gap-y-1 { row-gap: 4px; }
+
+    .rounded-full { border-radius: 9999px; }
+    .rounded-lg { border-radius: 8px; }
+    .rounded-xl { border-radius: 12px; }
+    .rounded-2xl { border-radius: 16px; }
+    .rounded-b-3xl { border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
+
+    .shadow-sm { box-shadow: var(--shadow-soft); }
+    .shadow { box-shadow: var(--shadow-card); }
+
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+
+    .text-\[8px\] { font-size: 8px; }
+    .text-\[9px\] { font-size: 9px; }
+    .text-\[10px\] { font-size: 10px; }
+    .text-\[11px\] { font-size: 11px; }
+    .text-xs { font-size: 12px; }
+    .text-sm { font-size: 14px; }
+    .text-base { font-size: 16px; }
+    .text-lg { font-size: 18px; }
+    .text-xl { font-size: 20px; }
+    .text-2xl { font-size: 24px; }
+    .text-3xl { font-size: 30px; }
+    .text-4xl { font-size: 36px; }
+    .text-5xl { font-size: 48px; }
+
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+
+    .w-8 { width: 32px; }
+    .w-10 { width: 40px; }
+    .w-12 { width: 48px; }
+    .w-16 { width: 64px; }
+    .w-full { width: 100%; }
+    .w-px { width: 1px; }
+
+    .h-8 { height: 32px; }
+    .h-10 { height: 40px; }
+    .h-12 { height: 48px; }
+    .h-16 { height: 64px; }
+    .h-px { height: 1px; }
+
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+
+    .overflow-hidden { overflow: hidden; }
+    .transition-all { transition: all 0.2s; }
+    .transition-transform { transition: transform 0.2s; }
+    .active\:scale-90:active { transform: scale(0.9); }
+    .active\:scale-\[0\.97\]:active { transform: scale(0.97); }
+
+    .cursor-pointer { cursor: pointer; }
+    .cursor-default { cursor: default; }
+
+    .border-2 { border-width: 2px; }
+    .border-t { border-top-width: 1px; }
+    .border-b { border-bottom-width: 1px; }
+
+    .leading-relaxed { line-height: 1.625; }
+
+    .aspect-ratio-1 { aspect-ratio: 1; }
+
+    /* 按钮样式 */
+    .btn {
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    /* 底部说明 */
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: hsl(220, 9%, 56%);
+    }
+
+    /* 动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 标题 -->
+    <div class="title">
+      <h1>⭐ 童星记录</h1>
+      <p>儿童表现记录微信小程序 · 设计原型</p>
+    </div>
+
+    <!-- 手机框架 -->
+    <div class="phone-frame">
+      <div class="phone-screen" id="phoneScreen">
+        <!-- 日历页面 -->
+        <div class="page active" id="calendarPage">
+          <div class="pb-24">
+            <!-- Header -->
+            <div class="px-4 pt-4 pb-5 rounded-b-3xl" style="background: var(--gradient-primary)">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold" style="background: rgba(255,255,255,0.3); color: #fff">
+                    小
+                  </div>
+                  <div class="text-left">
+                    <div class="text-sm font-semibold" style="color: #fff">小明</div>
+                    <div class="text-xs" style="color: rgba(255,255,255,0.7)">点击切换 ▾</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 px-4 py-1.5 rounded-full" style="background: rgba(255,255,255,0.2)">
+                  <span class="text-base">🪙</span>
+                  <span class="text-base font-bold" style="color: #fff">36</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Month Nav -->
+            <div class="flex items-center justify-center gap-8 pt-5 pb-2">
+              <button class="btn w-8 h-8 rounded-full flex items-center justify-center shadow-sm" style="background: hsl(var(--card))" onclick="prevMonth()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--muted-foreground))"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <div class="text-center">
+                <div class="text-xs" style="color: hsl(var(--muted-foreground))" id="yearText">2026年</div>
+                <div class="text-lg font-bold" style="color: hsl(var(--foreground))" id="monthText">四月</div>
+              </div>
+              <button class="btn w-8 h-8 rounded-full flex items-center justify-center shadow-sm" style="background: hsl(var(--card))" onclick="nextMonth()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--muted-foreground))"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="flex justify-around px-4 mb-3" id="statsContainer">
+              <!-- 动态生成 -->
+            </div>
+
+            <!-- Calendar -->
+            <div class="mx-4 rounded-2xl p-3 shadow-sm" style="background: hsl(var(--card)); box-shadow: var(--shadow-card)">
+              <!-- Weekday header -->
+              <div class="grid grid-cols-7 mb-1">
+                <div class="text-center text-[11px] font-medium pb-2" style="color: hsl(var(--muted-foreground))">一</div>
+                <div class="text-center text-[11px] font-medium pb-2" style="color: hsl(var(--muted-foreground))">二</div>
+                <div class="text-center text-[11px] font-medium pb-2" style="color: hsl(var(--muted-foreground))">三</div>
+                <div class="text-center text-[11px] font-medium pb-2" style="color: hsl(var(--muted-foreground))">四</div>
+                <div class="text-center text-[11px] font-medium pb-2" style="color: hsl(var(--muted-foreground))">五</div>
+                <div class="text-center text-[11px] font-medium pb-2" style="color: hsl(var(--muted-foreground))">六</div>
+                <div class="text-center text-[11px] font-medium pb-2" style="color: hsl(var(--muted-foreground))">日</div>
+              </div>
+              <!-- Days grid -->
+              <div class="grid grid-cols-7 gap-y-1" id="calendarGrid">
+                <!-- 动态生成 -->
+              </div>
+            </div>
+
+            <!-- FAB -->
+            <button class="btn fixed bottom-28 right-8 w-12 h-12 rounded-full flex items-center justify-center z-40" style="background: hsl(var(--primary)); box-shadow: var(--shadow-primary); position: absolute; bottom: 100px; right: 24px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 商城页面 -->
+        <div class="page" id="shopPage">
+          <div class="pb-24">
+            <!-- Header -->
+            <div class="px-4 pt-4 pb-5 rounded-b-3xl" style="background: var(--gradient-coin)">
+              <div class="text-sm font-semibold" style="color: #fff">小明的商城</div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-xs" style="color: rgba(255,255,255,0.8)">奖励币余额</span>
+                <div class="flex items-center gap-1">
+                  <span class="text-2xl">🪙</span>
+                  <span class="text-3xl font-extrabold" style="color: #fff">36</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex mx-4 mt-3 rounded-full p-0.5 shadow-sm" style="background: hsl(var(--card))">
+              <button class="btn flex-1 py-2 rounded-full text-xs font-medium transition-all" id="shopTabBtn" onclick="switchShopTab('shop')" style="background: hsl(var(--primary)); color: #fff">兑换商城</button>
+              <button class="btn flex-1 py-2 rounded-full text-xs font-medium transition-all" id="manageTabBtn" onclick="switchShopTab('manage')" style="background: transparent; color: hsl(var(--muted-foreground))">商品管理</button>
+              <button class="btn flex-1 py-2 rounded-full text-xs font-medium transition-all" id="historyTabBtn" onclick="switchShopTab('history')" style="background: transparent; color: hsl(var(--muted-foreground))">兑换记录</button>
+            </div>
+
+            <!-- Shop Grid -->
+            <div id="shopContent">
+              <div class="grid grid-cols-2 gap-2.5 px-4 mt-3" id="shopGrid">
+                <!-- 动态生成 -->
+              </div>
+            </div>
+
+            <!-- Manage -->
+            <div id="manageContent" style="display: none">
+              <div class="px-4 mt-3 space-y-2" id="manageList">
+                <!-- 动态生成 -->
+              </div>
+              <button class="btn w-full py-3 rounded-full text-sm font-semibold mt-2 mx-4" style="width: calc(100% - 32px); background: hsl(var(--primary)); color: #fff; box-shadow: var(--shadow-primary); margin-left: 16px; margin-right: 16px;">
+                + 添加奖励商品
+              </button>
+            </div>
+
+            <!-- History -->
+            <div id="historyContent" style="display: none">
+              <div class="px-4 mt-3 space-y-2">
+                <div class="flex items-center justify-between p-3 rounded-xl shadow-sm" style="background: hsl(var(--card))">
+                  <div class="text-left">
+                    <div class="text-sm font-medium" style="color: hsl(var(--foreground))">看电视30分钟</div>
+                    <div class="text-[10px]" style="color: hsl(var(--muted-foreground))">04-20 18:30</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-semibold" style="color: hsl(var(--destructive))">-10 🪙</div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: hsl(var(--success-light)); color: hsl(var(--success))">已完成</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-xl shadow-sm" style="background: hsl(var(--card))">
+                  <div class="text-left">
+                    <div class="text-sm font-medium" style="color: hsl(var(--foreground))">吃冰淇淋</div>
+                    <div class="text-[10px]" style="color: hsl(var(--muted-foreground))">04-18 12:00</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-semibold" style="color: hsl(var(--destructive))">-6 🪙</div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: hsl(var(--success-light)); color: hsl(var(--success))">已通过</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-xl shadow-sm" style="background: hsl(var(--card))">
+                  <div class="text-left">
+                    <div class="text-sm font-medium" style="color: hsl(var(--foreground))">玩游戏30分钟</div>
+                    <div class="text-[10px]" style="color: hsl(var(--muted-foreground))">04-22 09:15</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-semibold" style="color: hsl(var(--destructive))">-4 🪙</div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: hsl(var(--warning-light)); color: hsl(var(--warning))">待审批</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 个人中心页面 -->
+        <div class="page" id="profilePage">
+          <div class="pb-24">
+            <!-- Header -->
+            <div class="px-4 pt-6 pb-6 rounded-b-3xl flex items-center gap-4" style="background: var(--gradient-primary)">
+              <div class="w-16 h-16 rounded-full flex items-center justify-center border-2" style="background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.5)">
+                <span class="text-2xl font-bold" style="color: #fff">张</span>
+              </div>
+              <div class="text-left">
+                <div class="text-lg font-bold" style="color: #fff">张妈妈</div>
+                <div class="text-xs" style="color: rgba(255,255,255,0.7)">@zhangmama</div>
+              </div>
+            </div>
+
+            <!-- Menu sections -->
+            <div class="px-4 mt-4">
+              <div class="text-[10px] font-semibold tracking-wider mb-2 text-left pl-1" style="color: hsl(var(--muted-foreground))">管理</div>
+              <div class="rounded-xl overflow-hidden shadow-sm" style="background: hsl(var(--card))">
+                <div class="flex items-center px-4 py-3.5 transition-colors" style="border-bottom: 1px solid hsl(var(--border))">
+                  <span class="text-lg mr-3">👶</span>
+                  <span class="flex-1 text-sm text-left" style="color: hsl(var(--foreground))">儿童管理</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--muted-foreground))"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+                <div class="flex items-center px-4 py-3.5 transition-colors">
+                  <span class="text-lg mr-3">🏪</span>
+                  <span class="flex-1 text-sm text-left" style="color: hsl(var(--foreground))">奖励商城设置</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--muted-foreground))"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="px-4 mt-4">
+              <div class="text-[10px] font-semibold tracking-wider mb-2 text-left pl-1" style="color: hsl(var(--muted-foreground))">账户</div>
+              <div class="rounded-xl overflow-hidden shadow-sm" style="background: hsl(var(--card))">
+                <div class="flex items-center px-4 py-3.5 transition-colors" style="border-bottom: 1px solid hsl(var(--border))">
+                  <span class="text-lg mr-3">✏️</span>
+                  <span class="flex-1 text-sm text-left" style="color: hsl(var(--foreground))">修改昵称</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--muted-foreground))"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+                <div class="flex items-center px-4 py-3.5 transition-colors">
+                  <span class="text-lg mr-3">🔑</span>
+                  <span class="flex-1 text-sm text-left" style="color: hsl(var(--foreground))">修改密码</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--muted-foreground))"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="px-4 mt-4">
+              <div class="text-[10px] font-semibold tracking-wider mb-2 text-left pl-1" style="color: hsl(var(--muted-foreground))">其他</div>
+              <div class="rounded-xl overflow-hidden shadow-sm" style="background: hsl(var(--card))">
+                <div class="flex items-center px-4 py-3.5 transition-colors">
+                  <span class="text-lg mr-3">ℹ️</span>
+                  <span class="flex-1 text-sm text-left" style="color: hsl(var(--foreground))">关于</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--muted-foreground))"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="px-4 mt-6">
+              <button class="btn w-full py-3 rounded-xl text-sm font-medium shadow-sm" style="background: hsl(var(--card)); color: hsl(var(--destructive))">
+                退出登录
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 详情页面 -->
+        <div class="page" id="detailPage">
+          <div class="p-4 animate-fade-in" id="detailContent">
+            <!-- 动态生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部导航 -->
+      <div class="tab-bar" id="tabBar">
+        <div class="tab-item active" id="calendarTab" onclick="switchTab('calendar')">
+          <svg class="tab-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span class="tab-label">日历</span>
+        </div>
+        <div class="tab-item" id="shopTab" onclick="switchTab('shop')">
+          <svg class="tab-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span class="tab-label">商城</span>
+        </div>
+        <div class="tab-item" id="profileTab" onclick="switchTab('profile')">
+          <svg class="tab-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span class="tab-label">我的</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部说明 -->
+    <p class="footer-note">点击日历中有标记的日期可查看详情 · 底部导航切换页面</p>
+  </div>
+
+  <script>
+    // 状态管理
+    let currentTab = 'calendar';
+    let currentYear = 2026;
+    let currentMonth = 4;
+    let currentDetailDate = '';
+
+    // 模拟数据
+    const mockRecords = {
+      '2026-04-01': { rating: 'good', coins: 3 },
+      '2026-04-02': { rating: 'good', coins: 2 },
+      '2026-04-03': { rating: 'bad', coins: -1 },
+      '2026-04-05': { rating: 'good', coins: 4 },
+      '2026-04-07': { rating: 'good', coins: 2 },
+      '2026-04-08': { rating: 'bad', coins: -2 },
+      '2026-04-10': { rating: 'good', coins: 5 },
+      '2026-04-11': { rating: 'good', coins: 3 },
+      '2026-04-12': { rating: 'good', coins: 2 },
+      '2026-04-14': { rating: 'bad', coins: -1 },
+      '2026-04-15': { rating: 'good', coins: 3 },
+      '2026-04-17': { rating: 'good', coins: 4 },
+      '2026-04-18': { rating: 'good', coins: 2 },
+      '2026-04-19': { rating: 'good', coins: 3 },
+      '2026-04-20': { rating: 'good', coins: 5 },
+      '2026-04-21': { rating: 'bad', coins: -2 },
+      '2026-04-22': { rating: 'good', coins: 3 },
+    };
+
+    const mockDetails = {
+      '2026-04-01': {
+        rating: 'good',
+        comment: '今天主动完成了所有作业，还帮妈妈收拾了餐桌，非常棒！',
+        rewards: [
+          { type: 'reward', desc: '主动完成作业', coins: 2 },
+          { type: 'reward', desc: '帮忙做家务', coins: 1 },
+        ],
+        earned: 3, deducted: 0,
+      },
+      '2026-04-03': {
+        rating: 'bad',
+        comment: '今天在学校和同学发生了争执，需要注意控制情绪。',
+        rewards: [
+          { type: 'punishment', desc: '与同学争执', coins: 1 },
+        ],
+        earned: 0, deducted: 1,
+      },
+      '2026-04-10': {
+        rating: 'good',
+        comment: '钢琴练习非常认真，还得到了老师的表扬！今天是特别棒的一天。',
+        rewards: [
+          { type: 'reward', desc: '钢琴练习优秀', coins: 3 },
+          { type: 'reward', desc: '得到老师表扬', coins: 2 },
+        ],
+        earned: 5, deducted: 0,
+      },
+      '2026-04-22': {
+        rating: 'good',
+        comment: '今天自己整理了书包和房间，很有进步。',
+        rewards: [
+          { type: 'reward', desc: '整理书包', coins: 1 },
+          { type: 'reward', desc: '整理房间', coins: 2 },
+        ],
+        earned: 3, deducted: 0,
+      },
+    };
+
+    const rewardItems = [
+      { id: '1', name: '看电视30分钟', icon: '📺', cost: 10, desc: '可以看喜欢的动画片' },
+      { id: '2', name: '玩游戏30分钟', icon: '🎮', cost: 4, desc: '可以玩平板游戏' },
+      { id: '3', name: '吃冰淇淋', icon: '🍦', cost: 6, desc: '选一种喜欢的口味' },
+      { id: '4', name: '去游乐场', icon: '🎢', cost: 30, desc: '周末去游乐场玩半天' },
+      { id: '5', name: '买新玩具', icon: '🧸', cost: 50, desc: '50元以内的玩具' },
+      { id: '6', name: '晚睡30分钟', icon: '🌙', cost: 8, desc: '可以晚睡半小时' },
+    ];
+
+    const balance = 36;
+    const MONTH_NAMES = ['', '一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+    const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+    // 切换主页面
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      // 隐藏所有页面
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      
+      // 显示选中页面
+      document.getElementById(tab + 'Page').classList.add('active');
+      document.getElementById(tab + 'Tab').classList.add('active');
+      
+      // 详情页不显示底部导航
+      document.getElementById('tabBar').style.display = 'flex';
+      
+      // 如果是日历页，重新渲染
+      if (tab === 'calendar') {
+        renderCalendar();
+      }
+    }
+
+    // 切换到详情页
+    function switchToDetail(date) {
+      currentDetailDate = date;
+      
+      // 隐藏所有页面
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      
+      // 显示详情页
+      document.getElementById('detailPage').classList.add('active');
+      document.getElementById('tabBar').style.display = 'none';
+      
+      // 渲染详情
+      renderDetail(date);
+    }
+
+    // 返回
+    function goBack() {
+      switchTab(currentTab);
+    }
+
+    // 渲染日历
+    function renderCalendar() {
+      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+      const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay();
+      const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+      
+      // 更新年月显示
+      document.getElementById('yearText').textContent = currentYear + '年';
+      document.getElementById('monthText').textContent = MONTH_NAMES[currentMonth];
+      
+      // 计算统计数据
+      const records = Object.entries(mockRecords).filter(([d]) => d.startsWith(`${currentYear}-${String(currentMonth).padStart(2, '0')}`));
+      const goodDays = records.filter(([, r]) => r.rating === 'good').length;
+      const badDays = records.filter(([, r]) => r.rating === 'bad').length;
+      const totalEarned = records.filter(([, r]) => r.coins > 0).reduce((s, [, r]) => s + r.coins, 0);
+      const totalDeducted = records.filter(([, r]) => r.coins < 0).reduce((s, [, r]) => s + Math.abs(r.coins), 0);
+      
+      // 渲染统计
+      const statsHtml = `
+        <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background: hsl(var(--success-light)); min-width: 64px">
+          <span class="text-lg font-bold" style="color: hsl(var(--foreground))">${goodDays}</span>
+          <span class="text-[10px]" style="color: hsl(var(--muted-foreground))">好表现</span>
+        </div>
+        <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background: hsl(var(--destructive) / 0.1); min-width: 64px">
+          <span class="text-lg font-bold" style="color: hsl(var(--foreground))">${badDays}</span>
+          <span class="text-[10px]" style="color: hsl(var(--muted-foreground))">需改进</span>
+        </div>
+        <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background: hsl(var(--coin-light)); min-width: 64px">
+          <span class="text-lg font-bold" style="color: hsl(var(--foreground))">+${totalEarned}</span>
+          <span class="text-[10px]" style="color: hsl(var(--muted-foreground))">获得币</span>
+        </div>
+        <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background: #F5F3FF; min-width: 64px">
+          <span class="text-lg font-bold" style="color: hsl(var(--foreground))">-${totalDeducted}</span>
+          <span class="text-[10px]" style="color: hsl(var(--muted-foreground))">扣除币</span>
+        </div>
+      `;
+      document.getElementById('statsContainer').innerHTML = statsHtml;
+      
+      // 生成日历格子
+      const cells = [];
+      for (let i = 0; i < startOffset; i++) {
+        cells.push({ day: 0, date: '', empty: true, isToday: false });
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const today = new Date();
+        const isToday = today.getFullYear() === currentYear && today.getMonth() + 1 === currentMonth && today.getDate() === d;
+        cells.push({ day: d, date: dateStr, empty: false, isToday });
+      }
+      
+      // 渲染日历格子
+      const gridHtml = cells.map((cell, idx) => {
+        if (cell.empty) return '<div></div>';
+        const record = mockRecords[cell.date];
+        const isGood = record?.rating === 'good';
+        const isBad = record?.rating === 'bad';
+        
+        let bg = 'transparent';
+        let textColor = 'hsl(var(--foreground))';
+        if (cell.isToday && !record) { bg = 'hsl(var(--primary))'; textColor = '#fff'; }
+        else if (isGood) { bg = 'hsl(var(--success-light))'; textColor = 'hsl(var(--success))'; }
+        else if (isBad) { bg = 'hsl(var(--destructive) / 0.1)'; textColor = 'hsl(var(--destructive))'; }
+        
+        const cursor = record ? 'cursor-pointer' : 'cursor-default';
+        const onclick = record ? `onclick="switchToDetail('${cell.date}')"` : '';
+        
+        let content = `
+          <span class="text-xs font-medium" style="color: ${textColor}; font-weight: ${cell.isToday ? 700 : 500}">
+            ${cell.day}
+          </span>
+        `;
+        
+        if (record) {
+          content += `<span class="text-[9px] mt-[-2px]">${isGood ? '⭐' : '💔'}</span>`;
+          content += `<span class="text-[8px] font-semibold" style="color: hsl(var(--coin-dark))">${record.coins > 0 ? '+' : ''}${record.coins}</span>`;
+        }
+        
+        return `
+          <div class="flex flex-col items-center justify-center py-1 rounded-lg transition-all ${cursor} aspect-ratio-1" style="background: ${bg}" ${onclick}>
+            ${content}
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('calendarGrid').innerHTML = gridHtml;
+    }
+
+    // 上一月
+    function prevMonth() {
+      if (currentMonth === 1) {
+        currentMonth = 12;
+        currentYear--;
+      } else {
+        currentMonth--;
+      }
+      renderCalendar();
+    }
+
+    // 下一月
+    function nextMonth() {
+      if (currentMonth === 12) {
+        currentMonth = 1;
+        currentYear++;
+      } else {
+        currentMonth++;
+      }
+      renderCalendar();
+    }
+
+    // 渲染详情
+    function renderDetail(date) {
+      const d = new Date(date);
+      const day = d.getDate();
+      const dateText = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+      const weekday = WEEKDAYS[d.getDay()];
+      
+      const detail = mockDetails[date];
+      
+      if (!detail) {
+        document.getElementById('detailContent').innerHTML = `
+          <button class="btn flex items-center gap-1 mb-4 text-sm" style="color: hsl(var(--muted-foreground))" onclick="goBack()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> 返回
+          </button>
+          <div class="flex flex-col items-center justify-center py-20">
+            <span class="text-5xl mb-3">📭</span>
+            <span class="text-sm" style="color: hsl(var(--muted-foreground))">该日期暂无记录</span>
+          </div>
+        `;
+        return;
+      }
+      
+      const isGood = detail.rating === 'good';
+      const net = detail.earned - detail.deducted;
+      
+      const rewardsHtml = detail.rewards.map((r, i) => `
+        <div class="flex items-center gap-3 py-2" style="border-bottom: ${i < detail.rewards.length - 1 ? '1px solid hsl(var(--border))' : 'none'}">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm" style="background: ${r.type === 'reward' ? 'hsl(var(--success-light))' : 'hsl(var(--destructive) / 0.1)'}">
+            ${r.type === 'reward' ? '🏆' : '⚡'}
+          </div>
+          <div class="flex-1 text-left">
+            <div class="text-sm font-medium" style="color: hsl(var(--foreground))">${r.desc}</div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full" style="background: ${r.type === 'reward' ? 'hsl(var(--success-light))' : 'hsl(var(--destructive) / 0.1)'}; color: ${r.type === 'reward' ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}">
+              ${r.type === 'reward' ? '奖励' : '惩罚'}
+            </span>
+          </div>
+          <span class="text-sm font-bold" style="color: ${r.type === 'reward' ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}">
+            ${r.type === 'reward' ? '+' : '-'}${r.coins} 🪙
+          </span>
+        </div>
+      `).join('');
+      
+      document.getElementById('detailContent').innerHTML = `
+        <button class="btn flex items-center gap-1 mb-3 text-sm" style="color: hsl(var(--muted-foreground))" onclick="goBack()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> 返回
+        </button>
+
+        <!-- Date Card -->
+        <div class="flex items-center justify-between p-4 rounded-2xl mb-3 shadow-sm" style="background: ${isGood ? 'linear-gradient(135deg, hsl(150, 55%, 94%), hsl(150, 55%, 88%))' : 'linear-gradient(135deg, hsl(0, 100%, 96%), hsl(0, 90%, 92%))'}">
+          <div class="flex items-center gap-3">
+            <span class="text-4xl font-extrabold" style="color: hsl(var(--foreground))">${day}</span>
+            <div class="text-left">
+              <div class="text-xs" style="color: hsl(var(--muted-foreground))">${dateText}</div>
+              <div class="text-[10px]" style="color: hsl(var(--muted-foreground))">${weekday}</div>
+            </div>
+          </div>
+          <div class="flex flex-col items-center px-4 py-2 rounded-xl" style="background: ${isGood ? 'rgba(82,196,126,0.2)' : 'rgba(255,107,107,0.2)'}">
+            <span class="text-3xl">${isGood ? '⭐' : '💔'}</span>
+            <span class="text-[10px] font-semibold mt-0.5">${isGood ? '表现好' : '需改进'}</span>
+          </div>
+        </div>
+
+        <!-- Comment -->
+        ${detail.comment ? `
+          <div class="p-4 rounded-2xl mb-3 shadow-sm" style="background: hsl(var(--card)); box-shadow: var(--shadow-soft)">
+            <div class="text-sm font-semibold mb-2 text-left" style="color: hsl(var(--foreground))">📝 评语</div>
+            <p class="text-sm leading-relaxed text-left" style="color: hsl(var(--foreground))">${detail.comment}</p>
+          </div>
+        ` : ''}
+
+        <!-- Reward Records -->
+        <div class="p-4 rounded-2xl mb-3 shadow-sm" style="background: hsl(var(--card)); box-shadow: var(--shadow-soft)">
+          <div class="text-sm font-semibold mb-2 text-left" style="color: hsl(var(--foreground))">📋 奖惩明细</div>
+          <div class="space-y-2">
+            ${rewardsHtml}
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="flex items-center rounded-2xl shadow-sm overflow-hidden" style="background: hsl(var(--card)); box-shadow: var(--shadow-soft)">
+          <div class="flex-1 text-center py-3">
+            <div class="text-[10px]" style="color: hsl(var(--muted-foreground))">获得奖励币</div>
+            <div class="text-lg font-bold" style="color: hsl(var(--success))">+${detail.earned}</div>
+          </div>
+          <div class="w-px h-8" style="background: hsl(var(--border))"></div>
+          <div class="flex-1 text-center py-3">
+            <div class="text-[10px]" style="color: hsl(var(--muted-foreground))">扣除奖励币</div>
+            <div class="text-lg font-bold" style="color: hsl(var(--destructive))">-${detail.deducted}</div>
+          </div>
+          <div class="w-px h-8" style="background: hsl(var(--border))"></div>
+          <div class="flex-1 text-center py-3">
+            <div class="text-[10px]" style="color: hsl(var(--muted-foreground))">净变动</div>
+            <div class="text-lg font-bold" style="color: ${net >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'}">
+              ${net >= 0 ? '+' : ''}${net}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 切换商城Tab
+    function switchShopTab(tab) {
+      // 更新按钮样式
+      const shopBtn = document.getElementById('shopTabBtn');
+      const manageBtn = document.getElementById('manageTabBtn');
+      const historyBtn = document.getElementById('historyTabBtn');
+      
+      shopBtn.style.background = tab === 'shop' ? 'hsl(var(--primary))' : 'transparent';
+      shopBtn.style.color = tab === 'shop' ? '#fff' : 'hsl(var(--muted-foreground))';
+      
+      manageBtn.style.background = tab === 'manage' ? 'hsl(var(--primary))' : 'transparent';
+      manageBtn.style.color = tab === 'manage' ? '#fff' : 'hsl(var(--muted-foreground))';
+      
+      historyBtn.style.background = tab === 'history' ? 'hsl(var(--primary))' : 'transparent';
+      historyBtn.style.color = tab === 'history' ? '#fff' : 'hsl(var(--muted-foreground))';
+      
+      // 显示对应内容
+      document.getElementById('shopContent').style.display = tab === 'shop' ? 'block' : 'none';
+      document.getElementById('manageContent').style.display = tab === 'manage' ? 'block' : 'none';
+      document.getElementById('historyContent').style.display = tab === 'history' ? 'block' : 'none';
+    }
+
+    // 渲染商城商品
+    function renderShop() {
+      const shopGridHtml = rewardItems.map(item => {
+        const canRedeem = balance >= item.cost;
+        return `
+          <div class="rounded-2xl p-4 flex flex-col items-center shadow-sm transition-transform active:scale-[0.97]" style="background: hsl(var(--card)); box-shadow: var(--shadow-soft)">
+            <span class="text-4xl mb-2">${item.icon}</span>
+            <span class="text-sm font-semibold text-center" style="color: hsl(var(--foreground))">${item.name}</span>
+            <span class="text-[10px] mt-1 text-center" style="color: hsl(var(--muted-foreground))">${item.desc}</span>
+            <div class="flex items-center gap-1 mt-2 mb-2">
+              <span class="text-sm">🪙</span>
+              <span class="text-base font-bold" style="color: hsl(var(--coin-dark))">${item.cost}</span>
+            </div>
+            <div class="w-full text-center py-1.5 rounded-full text-xs font-semibold" style="background: ${canRedeem ? 'hsl(var(--primary))' : 'hsl(var(--muted))'}; color: ${canRedeem ? '#fff' : 'hsl(var(--muted-foreground))'}">
+              ${canRedeem ? '兑换' : '余额不足'}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('shopGrid').innerHTML = shopGridHtml;
+      
+      // 渲染管理列表
+      const manageListHtml = rewardItems.map(item => `
+        <div class="flex items-center justify-between p-3 rounded-xl shadow-sm" style="background: hsl(var(--card))">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">${item.icon}</span>
+            <div class="text-left">
+              <div class="text-sm font-medium" style="color: hsl(var(--foreground))">${item.name}</div>
+              <div class="text-xs font-semibold" style="color: hsl(var(--coin-dark))">🪙 ${item.cost}</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="text-xs px-3 py-1 rounded-full" style="background: hsl(var(--muted)); color: hsl(var(--muted-foreground))">编辑</span>
+            <span class="text-xs px-3 py-1 rounded-full" style="background: hsl(var(--muted)); color: hsl(var(--destructive))">删除</span>
+          </div>
+        </div>
+      `).join('');
+      
+      document.getElementById('manageList').innerHTML = manageListHtml;
+    }
+
+    // 初始化
+    renderCalendar();
+    renderShop();
+  </script>
+</body>
+</html>
