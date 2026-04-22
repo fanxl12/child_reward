@@ -8,7 +8,7 @@ Page({
     // 日历状态
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
-    monthText: '',
+    monthText: util.monthName(new Date().getMonth() + 1),
     weekDays: ['一', '二', '三', '四', '五', '六', '日'],
     calendarDays: [],
     
@@ -75,6 +75,9 @@ Page({
   async loadCalendar() {
     const { year, month, currentChild } = this.data;
     
+    // 先更新月份显示，不依赖儿童数据
+    this.setData({ monthText: util.monthName(month) });
+    
     if (!currentChild.id) return;
     
     // 生成日历网格
@@ -100,7 +103,6 @@ Page({
       
       this.setData({
         calendarDays: grid,
-        monthText: util.monthName(month),
         stats: {
           goodDays: res.good_days,
           badDays: res.bad_days,
@@ -112,7 +114,6 @@ Page({
       // API 不可用时仍显示日历框架
       this.setData({
         calendarDays: grid,
-        monthText: util.monthName(month),
       });
     }
   },
@@ -148,7 +149,7 @@ Page({
   onDayTap(e) {
     const item = e.currentTarget.dataset.item;
     if (item.empty) return;
-    
+
     if (item.rating) {
       // 有记录，跳转详情
       wx.navigateTo({
@@ -158,10 +159,13 @@ Page({
       // 无记录，打开添加弹窗并预设日期
       this.setData({
         showAddRecord: true,
-        'recordForm.date': item.date,
-        'recordForm.rating': 'good',
-        'recordForm.comment': '',
-        'recordForm.rewards': [],
+        recordForm: {
+          date: item.date,
+          rating: 'good',
+          comment: '',
+          rewards: [],
+        },
+        newReward: { type: 'reward', description: '', coins: '' },
       });
     }
   },
@@ -232,26 +236,43 @@ Page({
   },
 
   onNewRewardDesc(e) {
-    this.setData({ 'newReward.description': e.detail.value });
+    this.setData({
+      newReward: { ...this.data.newReward, description: e.detail.value },
+    });
   },
 
   onNewRewardCoins(e) {
-    this.setData({ 'newReward.coins': e.detail.value });
+    const value = e.detail.value.replace(/[^0-9]/g, '');
+    this.setData({
+      newReward: { ...this.data.newReward, coins: value },
+    });
   },
 
   onAddRewardEntry() {
     const { newReward, recordForm } = this.data;
-    if (!newReward.description || !newReward.coins) {
+    console.log('onAddRewardEntry newReward:', newReward);
+
+    const description = (newReward.description || '').trim();
+    const coinsStr = String(newReward.coins || '').trim();
+    console.log('description:', JSON.stringify(description), 'coinsStr:', JSON.stringify(coinsStr));
+
+    if (!description || coinsStr === '') {
       wx.showToast({ title: '请填写完整', icon: 'none' });
       return;
     }
-    
+
+    const coins = parseInt(coinsStr);
+    if (isNaN(coins)) {
+      wx.showToast({ title: '币数格式错误', icon: 'none' });
+      return;
+    }
+
     const rewards = [...recordForm.rewards, {
       type: newReward.type,
-      description: newReward.description,
-      coins: parseInt(newReward.coins),
+      description,
+      coins,
     }];
-    
+
     this.setData({
       'recordForm.rewards': rewards,
       newReward: { type: 'reward', description: '', coins: '' },

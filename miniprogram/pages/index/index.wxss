@@ -311,11 +311,18 @@
   padding: 32rpx;
   max-height: 70vh;
   animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-large {
   max-height: 85vh;
+}
+
+.modal-body {
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 @keyframes slideUp {

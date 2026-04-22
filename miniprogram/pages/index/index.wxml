@@ -61,16 +61,12 @@
     <view class="week-header">
       <text class="week-day" wx:for="{{weekDays}}" wx:key="index">{{item}}</text>
     </view>
-    
+
     <!-- 日期格子 -->
     <view class="calendar-grid">
-      <view 
-        wx:for="{{calendarDays}}" 
-        wx:key="index"
+      <view wx:for="{{calendarDays}}" wx:key="index"
         class="calendar-cell {{item.empty ? 'cell-empty' : ''}} {{item.isToday ? 'cell-today' : ''}} {{item.rating === 'good' ? 'cell-good' : ''}} {{item.rating === 'bad' ? 'cell-bad' : ''}}"
-        bindtap="onDayTap"
-        data-item="{{item}}"
-      >
+        bindtap="onDayTap" data-item="{{item}}">
         <text class="cell-day" wx:if="{{!item.empty}}">{{item.day}}</text>
         <view class="cell-dot" wx:if="{{item.rating}}">
           <text wx:if="{{item.rating === 'good'}}">⭐</text>
@@ -96,13 +92,8 @@
         <view class="modal-close" bindtap="onCloseChildPicker">✕</view>
       </view>
       <view class="child-list">
-        <view 
-          class="child-option {{item.id === currentChild.id ? 'selected' : ''}}"
-          wx:for="{{children}}" 
-          wx:key="id"
-          bindtap="onSelectChild"
-          data-child="{{item}}"
-        >
+        <view class="child-option {{item.id === currentChild.id ? 'selected' : ''}}" wx:for="{{children}}" wx:key="id"
+          bindtap="onSelectChild" data-child="{{item}}">
           <view class="child-avatar-sm">
             <text>{{item.name[0]}}</text>
           </view>
@@ -126,94 +117,72 @@
         <text class="modal-title">记录今日表现</text>
         <view class="modal-close" bindtap="onCloseAddRecord">✕</view>
       </view>
-      
-      <view class="form-section">
-        <!-- 日期选择 -->
-        <view class="form-item">
-          <text class="form-label">日期</text>
-          <picker mode="date" value="{{recordForm.date}}" bindchange="onDateChange">
-            <view class="form-input">{{recordForm.date}}</view>
-          </picker>
-        </view>
 
-        <!-- 总体评价 -->
-        <view class="form-item">
-          <text class="form-label">总体评价</text>
-          <view class="rating-selector">
-            <view 
-              class="rating-option {{recordForm.rating === 'good' ? 'rating-active-good' : ''}}"
-              bindtap="onRatingChange" 
-              data-rating="good"
-            >
-              <text class="rating-emoji">⭐</text>
-              <text>表现好</text>
-            </view>
-            <view 
-              class="rating-option {{recordForm.rating === 'bad' ? 'rating-active-bad' : ''}}"
-              bindtap="onRatingChange" 
-              data-rating="bad"
-            >
-              <text class="rating-emoji">💔</text>
-              <text>需改进</text>
-            </view>
+      <scroll-view class="modal-body" scroll-y>
+        <view class="form-section">
+          <!-- 日期选择 -->
+          <view class="form-item">
+            <text class="form-label">日期</text>
+            <picker mode="date" value="{{recordForm.date}}" bindchange="onDateChange">
+              <view class="form-input">{{recordForm.date}}</view>
+            </picker>
           </view>
-        </view>
 
-        <!-- 评语 -->
-        <view class="form-item">
-          <text class="form-label">评语</text>
-          <textarea 
-            class="form-textarea" 
-            placeholder="写下今天的评语..." 
-            value="{{recordForm.comment}}"
-            bindinput="onCommentInput"
-            maxlength="500"
-          />
-        </view>
-
-        <!-- 奖惩明细 -->
-        <view class="form-item">
-          <text class="form-label">奖惩明细</text>
-          <view class="reward-list">
-            <view class="reward-entry" wx:for="{{recordForm.rewards}}" wx:key="index">
-              <view class="reward-entry-type {{item.type === 'reward' ? 'type-reward' : 'type-punishment'}}">
-                {{item.type === 'reward' ? '奖' : '罚'}}
+          <!-- 总体评价 -->
+          <view class="form-item">
+            <text class="form-label">总体评价</text>
+            <view class="rating-selector">
+              <view class="rating-option {{recordForm.rating === 'good' ? 'rating-active-good' : ''}}"
+                bindtap="onRatingChange" data-rating="good">
+                <text class="rating-emoji">⭐</text>
+                <text>表现好</text>
               </view>
-              <text class="reward-entry-desc">{{item.description}}</text>
-              <text class="reward-entry-coins">{{item.type === 'reward' ? '+' : '-'}}{{item.coins}}🪙</text>
-              <view class="reward-entry-del" bindtap="onDeleteRewardEntry" data-index="{{index}}">✕</view>
+              <view class="rating-option {{recordForm.rating === 'bad' ? 'rating-active-bad' : ''}}"
+                bindtap="onRatingChange" data-rating="bad">
+                <text class="rating-emoji">💔</text>
+                <text>需改进</text>
+              </view>
             </view>
           </view>
-          
-          <!-- 添加奖惩 -->
-          <view class="add-reward-row">
-            <view class="reward-type-toggle">
-              <view 
-                class="toggle-item {{newReward.type === 'reward' ? 'toggle-active-good' : ''}}"
-                bindtap="onNewRewardType" data-type="reward"
-              >奖励</view>
-              <view 
-                class="toggle-item {{newReward.type === 'punishment' ? 'toggle-active-bad' : ''}}"
-                bindtap="onNewRewardType" data-type="punishment"
-              >惩罚</view>
+
+          <!-- 评语 -->
+          <view class="form-item">
+            <text class="form-label">评语</text>
+            <textarea class="form-textarea" placeholder="写下今天的评语..." value="{{recordForm.comment}}"
+              bindinput="onCommentInput" maxlength="500" />
+          </view>
+
+          <!-- 奖惩明细 -->
+          <view class="form-item">
+            <text class="form-label">奖惩明细</text>
+            <view class="reward-list">
+              <view class="reward-entry" wx:for="{{recordForm.rewards}}" wx:key="index">
+                <view class="reward-entry-type {{item.type === 'reward' ? 'type-reward' : 'type-punishment'}}">
+                  {{item.type === 'reward' ? '奖' : '罚'}}
+                </view>
+                <text class="reward-entry-desc">{{item.description}}</text>
+                <text class="reward-entry-coins">{{item.type === 'reward' ? '+' : '-'}}{{item.coins}}🪙</text>
+                <view class="reward-entry-del" bindtap="onDeleteRewardEntry" data-index="{{index}}">✕</view>
+              </view>
             </view>
-            <input 
-              class="reward-desc-input" 
-              placeholder="描述" 
-              value="{{newReward.description}}"
-              bindinput="onNewRewardDesc"
-            />
-            <input 
-              class="reward-coins-input" 
-              type="number" 
-              placeholder="币" 
-              value="{{newReward.coins}}"
-              bindinput="onNewRewardCoins"
-            />
-            <view class="btn-add-reward" bindtap="onAddRewardEntry">+</view>
+
+            <!-- 添加奖惩 -->
+            <view class="add-reward-row">
+              <view class="reward-type-toggle">
+                <view class="toggle-item {{newReward.type === 'reward' ? 'toggle-active-good' : ''}}"
+                  bindtap="onNewRewardType" data-type="reward">奖励</view>
+                <view class="toggle-item {{newReward.type === 'punishment' ? 'toggle-active-bad' : ''}}"
+                  bindtap="onNewRewardType" data-type="punishment">惩罚</view>
+              </view>
+              <input class="reward-desc-input" placeholder="描述" value="{{newReward.description}}"
+                bindinput="onNewRewardDesc" />
+              <input class="reward-coins-input" placeholder="币" value="{{newReward.coins}}" bindinput="onNewRewardCoins"
+                bindblur="onNewRewardCoins" />
+              <view class="btn-add-reward" bindtap="onAddRewardEntry">+</view>
+            </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
 
       <view class="modal-footer">
         <view class="btn-secondary" bindtap="onCloseAddRecord">取消</view>
