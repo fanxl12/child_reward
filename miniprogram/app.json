@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/detail/detail",
+    "pages/reward-shop/reward-shop",
+    "pages/children/children",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FF7B6B",
+    "navigationBarTitleText": "童星记录",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FFF8F6"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#FF7B6B",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "日历"
+      },
+      {
+        "pagePath": "pages/reward-shop/reward-shop",
+        "text": "商城"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

@@ -1,0 +1,187 @@
+/* 日期详情页样式 */
+
+.page-detail {
+  min-height: 100vh;
+  padding: 32rpx;
+  padding-bottom: 64rpx;
+}
+
+/* 日期顶部卡片 */
+.date-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-radius: var(--radius-xl);
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-md);
+}
+
+.date-card-good {
+  background: linear-gradient(135deg, #E8F8EE, #D1F0DD);
+}
+
+.date-card-bad {
+  background: linear-gradient(135deg, #FFF0F0, #FFE0E0);
+}
+
+.date-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.date-day {
+  font-size: 72rpx;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.date-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-full {
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+}
+
+.date-weekday {
+  font-size: 24rpx;
+  color: var(--color-text-hint);
+}
+
+.rating-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 28rpx;
+  border-radius: var(--radius-lg);
+}
+
+.badge-good {
+  background: rgba(82, 196, 126, 0.2);
+}
+
+.badge-bad {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.rating-icon {
+  font-size: 48rpx;
+}
+
+.rating-text {
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-top: 4rpx;
+}
+
+/* 评语 */
+.comment-text {
+  font-size: 30rpx;
+  color: var(--color-text-primary);
+  line-height: 1.8;
+}
+
+/* 明细列表 */
+.detail-list {
+  margin-top: 8rpx;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-icon {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 32rpx;
+}
+
+.icon-reward {
+  background: var(--color-success-light);
+}
+
+.icon-punishment {
+  background: var(--color-danger-light);
+}
+
+.detail-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.detail-desc {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.detail-type {
+  font-size: 22rpx;
+  width: fit-content;
+}
+
+.detail-coins {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.coins-positive {
+  color: var(--color-success);
+}
+
+.coins-negative {
+  color: var(--color-danger);
+}
+
+/* 币数汇总 */
+.coin-summary {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24rpx 0;
+  margin-top: 8rpx;
+}
+
+.summary-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-label {
+  font-size: 22rpx;
+  color: var(--color-text-hint);
+  margin-bottom: 8rpx;
+}
+
+.summary-value {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.summary-divider {
+  width: 2rpx;
+  height: 48rpx;
+  background: var(--color-border);
+}

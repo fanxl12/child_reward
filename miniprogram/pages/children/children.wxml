@@ -1,0 +1,85 @@
+<!--
+  儿童管理页 - 添加/编辑/查看儿童信息
+-->
+<view class="page-children">
+  <view class="section-title">我的孩子</view>
+
+  <!-- 儿童列表 -->
+  <view class="children-list">
+    <view class="child-card" wx:for="{{children}}" wx:key="id">
+      <view class="child-card-left">
+        <view class="child-avatar-large">
+          <image wx:if="{{item.avatar_url}}" src="{{item.avatar_url}}" mode="aspectFill" />
+          <text wx:else class="avatar-letter">{{item.name[0]}}</text>
+        </view>
+      </view>
+      <view class="child-card-body">
+        <view class="child-card-name">{{item.name}}</view>
+        <view class="child-card-meta">
+          <text wx:if="{{item.gender}}">{{item.gender === 'male' ? '👦 男孩' : item.gender === 'female' ? '👧 女孩' : '🧒'}}</text>
+          <text wx:if="{{item.birthday}}"> · {{item.birthday}}</text>
+        </view>
+        <view class="child-card-coins">
+          <text class="coin-emoji-sm">🪙</text>
+          <text class="coin-amount-sm">{{item.coin_balance}}</text>
+          <text class="coin-label-sm">奖励币</text>
+        </view>
+      </view>
+      <view class="child-card-actions">
+        <view class="action-btn" bindtap="onEditChild" data-child="{{item}}">编辑</view>
+        <view class="action-btn action-danger" bindtap="onDeleteChild" data-child="{{item}}">删除</view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{children.length === 0}}">
+      <text class="empty-state-icon">👶</text>
+      <text class="empty-state-text">还没有添加孩子</text>
+      <text class="empty-state-text">点击下方按钮添加</text>
+    </view>
+  </view>
+
+  <!-- 添加按钮 -->
+  <view class="btn-primary add-child-btn" bindtap="onShowAddChild">+ 添加孩子</view>
+
+  <!-- 添加/编辑弹窗 -->
+  <view class="modal-mask" wx:if="{{showForm}}" bindtap="onCloseForm">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">{{editingChild ? '编辑信息' : '添加孩子'}}</text>
+        <view class="modal-close" bindtap="onCloseForm">✕</view>
+      </view>
+
+      <view class="form-section">
+        <view class="form-item">
+          <text class="form-label">姓名 *</text>
+          <input class="form-input" placeholder="请输入姓名" value="{{childForm.name}}" bindinput="onNameInput" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">性别</text>
+          <view class="gender-selector">
+            <view class="gender-option {{childForm.gender === 'male' ? 'gender-active' : ''}}" bindtap="onGenderSelect" data-gender="male">
+              <text>👦</text><text>男孩</text>
+            </view>
+            <view class="gender-option {{childForm.gender === 'female' ? 'gender-active' : ''}}" bindtap="onGenderSelect" data-gender="female">
+              <text>👧</text><text>女孩</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">出生日期</text>
+          <picker mode="date" value="{{childForm.birthday}}" bindchange="onBirthdayChange" end="{{today}}">
+            <view class="form-input">{{childForm.birthday || '请选择出生日期'}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseForm">取消</view>
+        <view class="btn-primary" bindtap="onSaveChild">保存</view>
+      </view>
+    </view>
+  </view>
+</view>

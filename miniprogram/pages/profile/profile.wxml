@@ -1,0 +1,78 @@
+<!--
+  个人中心页
+-->
+<view class="page-profile">
+  <!-- 用户信息卡片 -->
+  <view class="profile-header">
+    <view class="profile-avatar">
+      <image wx:if="{{userInfo.avatar_url}}" src="{{userInfo.avatar_url}}" mode="aspectFill" />
+      <text wx:elif="{{userInfo.nickname}}" class="avatar-text">{{userInfo.nickname}}</text>
+      <text wx:elif="{{userInfo.username}}" class="avatar-text">{{userInfo.username}}</text>
+      <text wx:else class="avatar-text">?</text>
+    </view>
+    <view class="profile-info">
+      <text wx:if="{{userInfo.nickname}}" class="profile-name">{{userInfo.nickname}}</text>
+      <text wx:elif="{{userInfo.username}}" class="profile-name">{{userInfo.username}}</text>
+      <text wx:else class="profile-name">用户</text>
+      <text wx:if="{{userInfo.username}}" class="profile-id">@{{userInfo.username}}</text>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-title">管理</view>
+    <view class="menu-item" bindtap="goToChildren">
+      <text class="menu-icon">👶</text>
+      <text class="menu-label">儿童管理</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToRewardShop">
+      <text class="menu-icon">🏪</text>
+      <text class="menu-label">奖励商城设置</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-title">账户</view>
+    <view class="menu-item" bindtap="onEditProfile">
+      <text class="menu-icon">✏️</text>
+      <text class="menu-label">修改昵称</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onChangePassword">
+      <text class="menu-icon">🔑</text>
+      <text class="menu-label">修改密码</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-title">其他</view>
+    <view class="menu-item" bindtap="onAbout">
+      <text class="menu-icon">ℹ️</text>
+      <text class="menu-label">关于</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-btn" bindtap="onLogout">退出登录</view>
+
+  <!-- 修改昵称弹窗 -->
+  <view class="modal-mask" wx:if="{{showEditNickname}}" bindtap="onCloseEdit">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">修改昵称</text>
+        <view class="modal-close" bindtap="onCloseEdit">✕</view>
+      </view>
+      <view class="form-item" style="padding: 0 8rpx;">
+        <input class="form-input" placeholder="请输入新昵称" value="{{newNickname}}" bindinput="onNicknameInput" />
+      </view>
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseEdit">取消</view>
+        <view class="btn-primary" bindtap="onSaveNickname">保存</view>
+      </view>
+    </view>
+  </view>
+</view>

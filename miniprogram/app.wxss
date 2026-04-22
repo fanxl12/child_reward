@@ -1,0 +1,223 @@
+/* ============================================
+   儿童表现记录系统 - 全局样式
+   设计主题：温馨暖色系
+   ============================================ */
+
+/* ---- 设计令牌 (Design Tokens) ---- */
+page {
+  /* 主色系 */
+  --color-primary: #FF7B6B;
+  --color-primary-light: #FFB4A9;
+  --color-primary-dark: #E85D4E;
+  
+  /* 功能色 */
+  --color-success: #52C47E;
+  --color-success-light: #E8F8EE;
+  --color-warning: #FFB547;
+  --color-warning-light: #FFF5E0;
+  --color-danger: #FF6B6B;
+  --color-danger-light: #FFF0F0;
+  
+  /* 奖励币金色 */
+  --color-coin: #FFB547;
+  --color-coin-light: #FFF5E0;
+  --color-coin-dark: #E89B2D;
+  
+  /* 中性色 */
+  --color-text-primary: #2D2D3A;
+  --color-text-secondary: #6B7280;
+  --color-text-hint: #9CA3AF;
+  --color-border: #F0F0F5;
+  --color-bg-page: #FFF8F6;
+  --color-bg-card: #FFFFFF;
+  --color-bg-section: #F9FAFB;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+  --shadow-primary: 0 4rpx 16rpx rgba(255, 123, 107, 0.3);
+  
+  /* 圆角 */
+  --radius-sm: 12rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 24rpx;
+  --radius-xl: 32rpx;
+  --radius-full: 999rpx;
+  
+  /* 间距 */
+  --spacing-xs: 8rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 48rpx;
+  
+  /* 基础样式 */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-page);
+  line-height: 1.5;
+}
+
+/* ---- 通用组件类 ---- */
+.container {
+  padding: var(--spacing-lg);
+}
+
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* 按钮 */
+.btn-primary {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 20rpx 48rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: var(--shadow-primary);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:active {
+  background: var(--color-primary-dark);
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: var(--color-bg-section);
+  color: var(--color-text-primary);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 20rpx 48rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.btn-small {
+  padding: 12rpx 32rpx;
+  font-size: 26rpx;
+}
+
+/* 标签 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 20rpx;
+  border-radius: var(--radius-full);
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.tag-good {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.tag-bad {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.tag-coin {
+  background: var(--color-coin-light);
+  color: var(--color-coin-dark);
+}
+
+/* 奖励币展示 */
+.coin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  font-weight: 600;
+  color: var(--color-coin-dark);
+}
+
+.coin-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 0;
+  color: var(--color-text-hint);
+}
+
+.empty-state-icon {
+  font-size: 80rpx;
+  margin-bottom: var(--spacing-md);
+}
+
+.empty-state-text {
+  font-size: 28rpx;
+  color: var(--color-text-hint);
+}
+
+/* 分割线 */
+.divider {
+  height: 2rpx;
+  background: var(--color-border);
+  margin: var(--spacing-md) 0;
+}
+
+/* 弹性布局 */
+.flex-row {
+  display: flex;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* 头像 */
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  overflow: hidden;
+}
+
+.avatar-sm {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.avatar-lg {
+  width: 120rpx;
+  height: 120rpx;
+}

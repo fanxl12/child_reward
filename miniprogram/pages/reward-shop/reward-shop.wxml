@@ -1,0 +1,168 @@
+<!--
+  奖励商城页
+-->
+<view class="page-shop">
+  <!-- 顶部：当前儿童 & 余额 -->
+  <view class="shop-header">
+    <view class="shop-child-info" wx:if="{{currentChild.id}}">
+      <text class="shop-child-name">{{currentChild.name}}的商城</text>
+      <view class="shop-balance">
+        <text class="balance-label">奖励币余额</text>
+        <view class="balance-amount">
+          <text class="balance-coin">🪙</text>
+          <text class="balance-number">{{currentChild.coin_balance || 0}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 管理模式切换 -->
+  <view class="mode-toggle">
+    <view class="toggle-option {{viewMode === 'shop' ? 'toggle-active' : ''}}" bindtap="switchView" data-mode="shop">
+      兑换商城
+    </view>
+    <view class="toggle-option {{viewMode === 'manage' ? 'toggle-active' : ''}}" bindtap="switchView" data-mode="manage">
+      商品管理
+    </view>
+    <view class="toggle-option {{viewMode === 'history' ? 'toggle-active' : ''}}" bindtap="switchView" data-mode="history">
+      兑换记录
+    </view>
+  </view>
+
+  <!-- 兑换商城视图 -->
+  <view class="shop-grid" wx:if="{{viewMode === 'shop'}}">
+    <view 
+      class="shop-item" 
+      wx:for="{{rewardItems}}" 
+      wx:key="id"
+      wx:if="{{item.is_active}}"
+      bindtap="onRedeemItem"
+      data-item="{{item}}"
+    >
+      <text class="item-icon">{{item.icon}}</text>
+      <text class="item-name">{{item.name}}</text>
+      <text class="item-desc" wx:if="{{item.description}}">{{item.description}}</text>
+      <view class="item-price">
+        <text class="price-coin">🪙</text>
+        <text class="price-amount">{{item.coin_cost}}</text>
+      </view>
+      <view class="item-action {{currentChild.coin_balance >= item.coin_cost ? 'can-redeem' : 'cannot-redeem'}}">
+        {{currentChild.coin_balance >= item.coin_cost ? '兑换' : '余额不足'}}
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{activeItems.length === 0}}">
+      <text class="empty-state-icon">🏪</text>
+      <text class="empty-state-text">暂无奖励商品</text>
+      <text class="empty-state-text">请在「商品管理」中添加</text>
+    </view>
+  </view>
+
+  <!-- 商品管理视图 -->
+  <view class="manage-view" wx:if="{{viewMode === 'manage'}}">
+    <view class="manage-list">
+      <view class="manage-item" wx:for="{{rewardItems}}" wx:key="id">
+        <view class="manage-item-left">
+          <text class="manage-icon">{{item.icon}}</text>
+          <view class="manage-info">
+            <text class="manage-name">{{item.name}}</text>
+            <text class="manage-cost">🪙 {{item.coin_cost}}</text>
+          </view>
+        </view>
+        <view class="manage-actions">
+          <view class="manage-btn" bindtap="onEditItem" data-item="{{item}}">编辑</view>
+          <view class="manage-btn manage-btn-danger" bindtap="onDeleteItem" data-item="{{item}}">删除</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="btn-primary" style="margin: 32rpx;" bindtap="onShowAddItem">+ 添加奖励商品</view>
+  </view>
+
+  <!-- 兑换记录视图 -->
+  <view class="history-view" wx:if="{{viewMode === 'history'}}">
+    <view class="history-list">
+      <view class="history-item" wx:for="{{redemptions}}" wx:key="id">
+        <view class="history-left">
+          <text class="history-name">{{item.reward_name}}</text>
+          <text class="history-time">{{item.created_at}}</text>
+        </view>
+        <view class="history-right">
+          <text class="history-coins">-{{item.coins_spent}} 🪙</text>
+          <text class="history-status status-{{item.status}}">
+            {{item.status === 'pending' ? '待审批' : item.status === 'approved' ? '已通过' : item.status === 'completed' ? '已完成' : '已拒绝'}}
+          </text>
+        </view>
+      </view>
+    </view>
+    <view class="empty-state" wx:if="{{redemptions.length === 0}}">
+      <text class="empty-state-icon">📋</text>
+      <text class="empty-state-text">暂无兑换记录</text>
+    </view>
+  </view>
+
+  <!-- 添加/编辑商品弹窗 -->
+  <view class="modal-mask" wx:if="{{showItemForm}}" bindtap="onCloseItemForm">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">{{editingItem ? '编辑商品' : '添加商品'}}</text>
+        <view class="modal-close" bindtap="onCloseItemForm">✕</view>
+      </view>
+      
+      <view class="form-section">
+        <view class="form-item">
+          <text class="form-label">商品名称</text>
+          <input class="form-input" placeholder="如：看电视30分钟" value="{{itemForm.name}}" bindinput="onItemNameInput" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">所需奖励币</text>
+          <input class="form-input" type="number" placeholder="如：10" value="{{itemForm.coin_cost}}" bindinput="onItemCostInput" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">描述（选填）</text>
+          <input class="form-input" placeholder="商品描述" value="{{itemForm.description}}" bindinput="onItemDescInput" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">图标</text>
+          <view class="icon-picker">
+            <view 
+              class="icon-option {{itemForm.icon === item ? 'icon-selected' : ''}}" 
+              wx:for="{{iconOptions}}" 
+              wx:key="index"
+              bindtap="onSelectIcon"
+              data-icon="{{item}}"
+            >{{item}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseItemForm">取消</view>
+        <view class="btn-primary" bindtap="onSaveItem">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 兑换确认弹窗 -->
+  <view class="modal-mask" wx:if="{{showRedeemConfirm}}" bindtap="onCloseRedeem">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">确认兑换</text>
+        <view class="modal-close" bindtap="onCloseRedeem">✕</view>
+      </view>
+      <view class="redeem-confirm-body">
+        <text class="redeem-item-icon">{{redeemTarget.icon}}</text>
+        <text class="redeem-item-name">{{redeemTarget.name}}</text>
+        <view class="redeem-cost">
+          <text>需消耗</text>
+          <text class="redeem-cost-amount">🪙 {{redeemTarget.coin_cost}}</text>
+        </view>
+        <text class="redeem-balance">兑换后余额：🪙 {{currentChild.coin_balance - redeemTarget.coin_cost}}</text>
+      </view>
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseRedeem">取消</view>
+        <view class="btn-primary" bindtap="onConfirmRedeem">确认兑换</view>
+      </view>
+    </view>
+  </view>
+</view>

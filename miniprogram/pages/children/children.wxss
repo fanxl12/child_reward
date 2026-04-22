@@ -1,0 +1,250 @@
+/* 儿童管理页样式 */
+
+.page-children {
+  min-height: 100vh;
+  padding: 32rpx;
+  padding-bottom: 120rpx;
+}
+
+.section-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 24rpx;
+}
+
+/* 儿童卡片 */
+.child-card {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: 28rpx;
+  margin-bottom: 16rpx;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+
+.child-card:active {
+  box-shadow: var(--shadow-md);
+}
+
+.child-card-left {
+  margin-right: 20rpx;
+}
+
+.child-avatar-large {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.child-avatar-large image {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-letter {
+  font-size: 40rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.child-card-body {
+  flex: 1;
+}
+
+.child-card-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 6rpx;
+}
+
+.child-card-meta {
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  margin-bottom: 8rpx;
+}
+
+.child-card-coins {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.coin-emoji-sm {
+  font-size: 24rpx;
+}
+
+.coin-amount-sm {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--color-coin-dark);
+}
+
+.coin-label-sm {
+  font-size: 22rpx;
+  color: var(--color-text-hint);
+}
+
+/* 操作按钮 */
+.child-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.action-btn {
+  padding: 10rpx 24rpx;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-full);
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.action-btn:active {
+  background: var(--color-border);
+}
+
+.action-danger {
+  color: var(--color-danger);
+}
+
+/* 添加按钮 */
+.add-child-btn {
+  position: fixed;
+  bottom: 48rpx;
+  left: 32rpx;
+  right: 32rpx;
+  text-align: center;
+}
+
+/* 性别选择 */
+.gender-selector {
+  display: flex;
+  gap: 24rpx;
+}
+
+.gender-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 24rpx;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-md);
+  border: 3rpx solid transparent;
+  font-size: 28rpx;
+  transition: all 0.2s;
+}
+
+.gender-active {
+  border-color: var(--color-primary);
+  background: rgba(255, 123, 107, 0.08);
+}
+
+/* 弹窗样式 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 600rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 2rpx solid var(--color-border);
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: var(--color-text-hint);
+  padding: 0 8rpx;
+}
+
+.form-item {
+  padding: 24rpx 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-md);
+  font-size: 28rpx;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+  line-height: 80rpx;
+}
+
+.form-input::placeholder {
+  color: var(--color-text-hint);
+  font-size: 28rpx;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 32rpx 32rpx;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: var(--radius-full);
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-primary);
+}
+
+.btn-secondary {
+  background: var(--color-bg-section);
+  color: var(--color-text-primary);
+  border: 2rpx solid var(--color-border);
+}

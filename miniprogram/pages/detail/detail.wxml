@@ -1,0 +1,77 @@
+<!--
+  日期详情页 - 查看/编辑当日表现
+-->
+<view class="page-detail">
+  <!-- 顶部日期卡片 -->
+  <view class="date-card {{record.overall_rating === 'good' ? 'date-card-good' : 'date-card-bad'}}">
+    <view class="date-info">
+      <text class="date-day">{{dateDay}}</text>
+      <view class="date-meta">
+        <text class="date-full">{{dateText}}</text>
+        <text class="date-weekday">{{weekdayText}}</text>
+      </view>
+    </view>
+    <view class="rating-badge {{record.overall_rating === 'good' ? 'badge-good' : 'badge-bad'}}">
+      <text class="rating-icon">{{record.overall_rating === 'good' ? '⭐' : '💔'}}</text>
+      <text class="rating-text">{{record.overall_rating === 'good' ? '表现好' : '需改进'}}</text>
+    </view>
+  </view>
+
+  <!-- 评语卡片 -->
+  <view class="card" wx:if="{{record.comment}}">
+    <text class="card-title">📝 评语</text>
+    <text class="comment-text">{{record.comment}}</text>
+  </view>
+
+  <!-- 奖惩明细 -->
+  <view class="card" wx:if="{{record.reward_records.length > 0}}">
+    <text class="card-title">📋 奖惩明细</text>
+    <view class="detail-list">
+      <view 
+        class="detail-item" 
+        wx:for="{{record.reward_records}}" 
+        wx:key="id"
+      >
+        <view class="detail-icon {{item.type === 'reward' ? 'icon-reward' : 'icon-punishment'}}">
+          {{item.type === 'reward' ? '🏆' : '⚡'}}
+        </view>
+        <view class="detail-content">
+          <text class="detail-desc">{{item.description}}</text>
+          <text class="detail-type tag {{item.type === 'reward' ? 'tag-good' : 'tag-bad'}}">
+            {{item.type === 'reward' ? '奖励' : '惩罚'}}
+          </text>
+        </view>
+        <text class="detail-coins {{item.type === 'reward' ? 'coins-positive' : 'coins-negative'}}">
+          {{item.type === 'reward' ? '+' : '-'}}{{item.coins}} 🪙
+        </text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 币数汇总 -->
+  <view class="coin-summary">
+    <view class="summary-item">
+      <text class="summary-label">获得奖励币</text>
+      <text class="summary-value coins-positive">+{{record.coins_earned || 0}}</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <text class="summary-label">扣除奖励币</text>
+      <text class="summary-value coins-negative">-{{record.coins_deducted || 0}}</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <text class="summary-label">净变动</text>
+      <text class="summary-value {{netCoins >= 0 ? 'coins-positive' : 'coins-negative'}}">
+        {{netCoins >= 0 ? '+' : ''}}{{netCoins}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!hasRecord}}">
+    <text class="empty-state-icon">📭</text>
+    <text class="empty-state-text">该日期暂无记录</text>
+    <view class="btn-primary" style="margin-top: 32rpx;" bindtap="onAddRecord">添加记录</view>
+  </view>
+</view>

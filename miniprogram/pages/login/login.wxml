@@ -1,0 +1,55 @@
+<!--
+  登录/注册页
+-->
+<view class="page-login">
+  <view class="login-header">
+    <text class="login-emoji">⭐</text>
+    <text class="login-title">童星记录</text>
+    <text class="login-subtitle">记录每一天的成长与进步</text>
+  </view>
+
+  <!-- Tab 切换 -->
+  <view class="tab-bar">
+    <view class="tab-item {{mode === 'login' ? 'tab-active' : ''}}" bindtap="switchMode" data-mode="login">登录</view>
+    <view class="tab-item {{mode === 'register' ? 'tab-active' : ''}}" bindtap="switchMode" data-mode="register">注册</view>
+  </view>
+
+  <view class="login-form">
+    <view class="input-group">
+      <text class="input-label">用户名</text>
+      <input class="input-field" placeholder="请输入用户名" value="{{username}}" bindinput="onUsernameInput" />
+    </view>
+
+    <view class="input-group" wx:if="{{mode === 'register'}}">
+      <text class="input-label">手机号</text>
+      <input class="input-field" type="number" placeholder="请输入手机号（选填）" value="{{phone}}" bindinput="onPhoneInput" />
+    </view>
+
+    <view class="input-group">
+      <text class="input-label">密码</text>
+      <input class="input-field" password placeholder="请输入密码（至少6位）" value="{{password}}" bindinput="onPasswordInput" />
+    </view>
+
+    <view class="input-group" wx:if="{{mode === 'register'}}">
+      <text class="input-label">昵称</text>
+      <input class="input-field" placeholder="请输入昵称（选填）" value="{{nickname}}" bindinput="onNicknameInput" />
+    </view>
+
+    <button class="submit-btn" bindtap="onSubmit" loading="{{loading}}">
+      {{mode === 'login' ? '登 录' : '注 册'}}
+    </button>
+
+    <!-- 分割线 -->
+    <view class="divider">
+      <view class="divider-line"></view>
+      <text class="divider-text">其他登录方式</text>
+      <view class="divider-line"></view>
+    </view>
+
+    <!-- 微信登录按钮 -->
+    <button class="wechat-btn" bindtap="onWechatLogin" loading="{{loading}}" open-type="getUserInfo">
+      <text class="wechat-icon">💚</text>
+      <text>微信一键登录</text>
+    </button>
+  </view>
+</view>
