@@ -20,7 +20,11 @@ Page({
   async loadChildren() {
     try {
       const res = await api.getChildren();
-      this.setData({ children: res.children || [] });
+      const children = (res.children || []).map(c => ({
+        ...c,
+        avatarLetter: c.name ? c.name.slice(-1) : '?',
+      }));
+      this.setData({ children });
     } catch (err) {
       console.error('加载儿童列表失败', err);
     }

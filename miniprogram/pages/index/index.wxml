@@ -8,7 +8,7 @@
     <view class="child-selector" bindtap="onSwitchChild">
       <view class="child-avatar">
         <image wx:if="{{currentChild.avatar_url}}" src="{{currentChild.avatar_url}}" mode="aspectFill" />
-        <text wx:else class="avatar-placeholder">{{currentChild.name[0] || '?'}}</text>
+        <text wx:else class="avatar-placeholder">{{currentChild.avatarLetter || '?'}}</text>
       </view>
       <view class="child-info">
         <text class="child-name">{{currentChild.name || '请选择儿童'}}</text>
@@ -95,7 +95,7 @@
         <view class="child-option {{item.id === currentChild.id ? 'selected' : ''}}" wx:for="{{children}}" wx:key="id"
           bindtap="onSelectChild" data-child="{{item}}">
           <view class="child-avatar-sm">
-            <text>{{item.name[0]}}</text>
+            <text>{{item.avatarLetter}}</text>
           </view>
           <view class="child-option-info">
             <text class="child-option-name">{{item.name}}</text>

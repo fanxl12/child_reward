@@ -10,7 +10,7 @@
       <view class="child-card-left">
         <view class="child-avatar-large">
           <image wx:if="{{item.avatar_url}}" src="{{item.avatar_url}}" mode="aspectFill" />
-          <text wx:else class="avatar-letter">{{item.name[0]}}</text>
+          <text wx:else class="avatar-letter">{{item.avatarLetter}}</text>
         </view>
       </view>
       <view class="child-card-body">

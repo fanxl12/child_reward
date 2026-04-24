@@ -56,20 +56,25 @@ Page({
   async loadChildren() {
     try {
       const res = await api.getChildren();
-      this.setData({ children: res.children });
-      
+      // 给每个 child 添加头像文字（取名字最后一个字）
+      const children = res.children.map(c => ({
+        ...c,
+        avatarLetter: c.name ? c.name.slice(-1) : '?',
+      }));
+      this.setData({ children });
+
       // 设置当前儿童（使用 API 返回的最新数据，确保余额等字段已刷新）
       const saved = app.globalData.currentChild;
-      const foundChild = saved && res.children.find(c => c.id === saved.id);
+      const foundChild = saved && children.find(c => c.id === saved.id);
       if (foundChild) {
         this.setData({ currentChild: foundChild });
         app.setCurrentChild(foundChild);
-      } else if (res.children.length > 0) {
-        const child = res.children[0];
+      } else if (children.length > 0) {
+        const child = children[0];
         this.setData({ currentChild: child });
         app.setCurrentChild(child);
       }
-      
+
       this.loadCalendar();
     } catch (err) {
       console.error('加载儿童列表失败', err);
