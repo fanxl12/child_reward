@@ -11,12 +11,12 @@ Page({
     monthText: util.monthName(new Date().getMonth() + 1),
     weekDays: ['一', '二', '三', '四', '五', '六', '日'],
     calendarDays: [],
-    
+
     // 儿童相关
     currentChild: {},
     children: [],
     showChildPicker: false,
-    
+
     // 统计
     stats: {
       goodDays: 0,
@@ -24,7 +24,7 @@ Page({
       totalEarned: 0,
       totalDeducted: 0,
     },
-    
+
     // 添加记录弹窗
     showAddRecord: false,
     recordForm: {
@@ -38,6 +38,11 @@ Page({
       description: '',
       coins: '',
     },
+
+    // 月份选择弹窗
+    showMonthPicker: false,
+    pickerYear: new Date().getFullYear(),
+    months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
   },
 
   onShow() {
@@ -138,7 +143,35 @@ Page({
   },
 
   onPickYearMonth() {
-    // 可扩展为年月选择器
+    this.setData({
+      showMonthPicker: true,
+      pickerYear: this.data.year,
+    });
+  },
+
+  onCloseMonthPicker() {
+    this.setData({ showMonthPicker: false });
+  },
+
+  onPickerPrevYear() {
+    this.setData({ pickerYear: this.data.pickerYear - 1 });
+  },
+
+  onPickerNextYear() {
+    this.setData({ pickerYear: this.data.pickerYear + 1 });
+  },
+
+  onSelectMonth(e) {
+    const month = e.currentTarget.dataset.month;
+    this.setData({
+      year: this.data.pickerYear,
+      month,
+      showMonthPicker: false,
+    });
+    this.loadCalendar();
+  },
+
+  onBackToToday() {
     const today = new Date();
     this.setData({
       year: today.getFullYear(),

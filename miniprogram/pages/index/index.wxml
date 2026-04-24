@@ -190,4 +190,36 @@
       </view>
     </view>
   </view>
+
+  <!-- 月份选择弹窗 -->
+  <view class="modal-mask" wx:if="{{showMonthPicker}}" bindtap="onCloseMonthPicker">
+    <view class="modal-content month-picker-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">选择月份</text>
+        <view class="modal-close" bindtap="onCloseMonthPicker">✕</view>
+      </view>
+
+      <view class="month-picker-body">
+        <!-- 年份导航 -->
+        <view class="year-nav">
+          <view class="year-nav-btn" bindtap="onPickerPrevYear">‹</view>
+          <text class="year-text">{{pickerYear}}年</text>
+          <view class="year-nav-btn" bindtap="onPickerNextYear">›</view>
+        </view>
+
+        <!-- 月份网格 -->
+        <view class="month-grid">
+          <view wx:for="{{months}}" wx:key="*this"
+            class="month-item {{item === month && pickerYear === year ? 'month-active' : ''}}"
+            bindtap="onSelectMonth" data-month="{{item}}">
+            <text class="month-item-text">{{item}}月</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="month-picker-footer">
+        <view class="btn-secondary btn-small" bindtap="onBackToToday">返回本月</view>
+      </view>
+    </view>
+  </view>
 </view>

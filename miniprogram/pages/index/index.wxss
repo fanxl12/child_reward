@@ -708,3 +708,84 @@
   color: var(--color-text-primary);
   border: 2rpx solid var(--color-border);
 }
+
+/* ---- 月份选择弹窗 ---- */
+.month-picker-content {
+  width: 560rpx;
+  padding: 0;
+}
+
+.month-picker-body {
+  padding: 0 32rpx 24rpx;
+}
+
+.year-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40rpx;
+  margin-bottom: 32rpx;
+}
+
+.year-nav-btn {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-section);
+  border-radius: 50%;
+  font-size: 32rpx;
+  color: var(--color-text-secondary);
+}
+
+.year-nav-btn:active {
+  background: var(--color-border);
+}
+
+.year-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.month-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.month-item {
+  width: calc((100% - 48rpx) / 4);
+  aspect-ratio: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+
+.month-item:active {
+  transform: scale(0.92);
+}
+
+.month-item-text {
+  font-size: 28rpx;
+  color: var(--color-text-primary);
+}
+
+.month-active {
+  background: var(--color-primary);
+}
+
+.month-active .month-item-text {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.month-picker-footer {
+  display: flex;
+  justify-content: center;
+  padding: 0 32rpx 32rpx;
+}
