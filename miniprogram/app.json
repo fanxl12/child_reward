@@ -23,15 +23,21 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "日历"
+        "text": "打卡",
+        "iconPath": "images/tab-checkin.png",
+        "selectedIconPath": "images/tab-checkin-active.png"
       },
       {
         "pagePath": "pages/reward-shop/reward-shop",
-        "text": "商城"
+        "text": "商城",
+        "iconPath": "images/tab-shop.png",
+        "selectedIconPath": "images/tab-shop-active.png"
       },
       {
         "pagePath": "pages/profile/profile",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "images/tab-profile.png",
+        "selectedIconPath": "images/tab-profile-active.png"
       }
     ]
   },
