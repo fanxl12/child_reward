@@ -187,6 +187,7 @@ Page({
 
   // ---- 日期点击 ----
   onDayTap(e) {
+    if (!app.checkLogin()) return;
     const item = e.currentTarget.dataset.item;
     if (item.empty) return;
 
@@ -212,6 +213,7 @@ Page({
 
   // ---- 儿童切换 ----
   onSwitchChild() {
+    if (!app.checkLogin()) return;
     this.setData({ showChildPicker: true });
   },
 

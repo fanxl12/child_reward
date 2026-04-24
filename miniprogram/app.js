@@ -1,8 +1,6 @@
 // ============================================
 // 儿童表现记录系统 - 小程序全局入口
 // ============================================
-const api = require('./utils/api');
-
 App({
   globalData: {
     userInfo: null,
@@ -21,34 +19,6 @@ App({
       this.globalData.token = token;
       this.globalData.userInfo = userInfo;
       this.globalData.currentChild = currentChild;
-    } else {
-      // 如果没有登录，尝试自动微信登录
-      this.autoWechatLogin();
-    }
-  },
-
-  /**
-   * 自动微信登录（静默登录）
-   */
-  async autoWechatLogin() {
-    try {
-      // 调用微信登录接口获取 code
-      const { code } = await wx.login();
-
-      if (!code) {
-        console.log('微信登录获取 code 失败');
-        return;
-      }
-
-      // 调用后端微信登录接口
-      const res = await api.wechatLogin(code);
-
-      // 保存登录信息
-      this.saveLoginInfo(res.access_token, res.user);
-      
-      console.log('自动微信登录成功');
-    } catch (err) {
-      console.log('自动微信登录失败，请手动登录', err);
     }
   },
 

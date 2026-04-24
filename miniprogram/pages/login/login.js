@@ -10,6 +10,13 @@ Page({
     phone: '',
     nickname: '',
     loading: false,
+    redirect: '',
+  },
+
+  onLoad(options) {
+    if (options.redirect) {
+      this.setData({ redirect: options.redirect });
+    }
   },
 
   switchMode(e) {
@@ -55,7 +62,12 @@ Page({
       wx.showToast({ title: mode === 'login' ? '登录成功' : '注册成功', icon: 'success' });
 
       setTimeout(() => {
-        wx.switchTab({ url: '/pages/index/index' });
+        const redirect = this.data.redirect;
+        if (redirect === 'profile') {
+          wx.switchTab({ url: '/pages/profile/profile' });
+        } else {
+          wx.switchTab({ url: '/pages/index/index' });
+        }
       }, 500);
     } catch (err) {
       console.error('认证失败', err);
@@ -88,7 +100,12 @@ Page({
       wx.showToast({ title: '登录成功', icon: 'success' });
 
       setTimeout(() => {
-        wx.switchTab({ url: '/pages/index/index' });
+        const redirect = this.data.redirect;
+        if (redirect === 'profile') {
+          wx.switchTab({ url: '/pages/profile/profile' });
+        } else {
+          wx.switchTab({ url: '/pages/index/index' });
+        }
       }, 500);
     } catch (err) {
       console.error('微信登录失败', err);

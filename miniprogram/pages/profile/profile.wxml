@@ -4,18 +4,29 @@
 <view class="page-profile">
   <!-- 用户信息卡片 -->
   <view class="profile-header">
-    <view class="profile-avatar">
-      <image wx:if="{{userInfo.avatar_url}}" src="{{userInfo.avatar_url}}" mode="aspectFill" />
-      <text wx:elif="{{userInfo.nickname}}" class="avatar-text">{{userInfo.nickname}}</text>
-      <text wx:elif="{{userInfo.username}}" class="avatar-text">{{userInfo.username}}</text>
-      <text wx:else class="avatar-text">?</text>
-    </view>
-    <view class="profile-info">
-      <text wx:if="{{userInfo.nickname}}" class="profile-name">{{userInfo.nickname}}</text>
-      <text wx:elif="{{userInfo.username}}" class="profile-name">{{userInfo.username}}</text>
-      <text wx:else class="profile-name">用户</text>
-      <text wx:if="{{userInfo.username}}" class="profile-id">@{{userInfo.username}}</text>
-    </view>
+    <block wx:if="{{isLoggedIn}}">
+      <view class="profile-avatar">
+        <image wx:if="{{userInfo.avatar_url}}" src="{{userInfo.avatar_url}}" mode="aspectFill" />
+        <text wx:elif="{{userInfo.nickname}}" class="avatar-text">{{userInfo.nickname[0]}}</text>
+        <text wx:elif="{{userInfo.username}}" class="avatar-text">{{userInfo.username[0]}}</text>
+        <text wx:else class="avatar-text">?</text>
+      </view>
+      <view class="profile-info">
+        <text wx:if="{{userInfo.nickname}}" class="profile-name">{{userInfo.nickname}}</text>
+        <text wx:elif="{{userInfo.username}}" class="profile-name">{{userInfo.username}}</text>
+        <text wx:else class="profile-name">用户</text>
+        <text wx:if="{{userInfo.username}}" class="profile-id">@{{userInfo.username}}</text>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="profile-avatar" bindtap="goToLogin">
+        <text class="avatar-text">?</text>
+      </view>
+      <view class="profile-info" bindtap="goToLogin">
+        <text class="profile-name">未登录</text>
+        <text class="profile-id">点击登录</text>
+      </view>
+    </block>
   </view>
 
   <!-- 功能菜单 -->
@@ -56,8 +67,9 @@
     </view>
   </view>
 
-  <!-- 退出登录 -->
-  <view class="logout-btn" bindtap="onLogout">退出登录</view>
+  <!-- 登录 / 退出登录 -->
+  <view wx:if="{{!isLoggedIn}}" class="logout-btn" style="background-color: #FF7B6B; color: #fff;" bindtap="goToLogin">登录</view>
+  <view wx:if="{{isLoggedIn}}" class="logout-btn" bindtap="onLogout">退出登录</view>
 
   <!-- 修改昵称弹窗 -->
   <view class="modal-mask" wx:if="{{showEditNickname}}" bindtap="onCloseEdit">

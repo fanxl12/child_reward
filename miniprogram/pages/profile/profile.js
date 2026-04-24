@@ -4,25 +4,36 @@ const api = require('../../utils/api');
 
 Page({
   data: {
+    isLoggedIn: false,
     userInfo: {},
     showEditNickname: false,
     newNickname: '',
   },
 
   onShow() {
-    if (!app.checkLogin()) return;
-    this.setData({ userInfo: app.globalData.userInfo || {} });
+    const isLoggedIn = !!app.globalData.token;
+    this.setData({
+      isLoggedIn,
+      userInfo: app.globalData.userInfo || {},
+    });
+  },
+
+  goToLogin() {
+    wx.navigateTo({ url: '/pages/login/login?redirect=profile' });
   },
 
   goToChildren() {
+    if (!app.checkLogin()) return;
     wx.navigateTo({ url: '/pages/children/children' });
   },
 
   goToRewardShop() {
+    if (!app.checkLogin()) return;
     wx.navigateTo({ url: '/pages/reward-manage/reward-manage' });
   },
 
   onEditProfile() {
+    if (!app.checkLogin()) return;
     this.setData({
       showEditNickname: true,
       newNickname: this.data.userInfo.nickname || '',
@@ -60,6 +71,7 @@ Page({
   },
 
   onChangePassword() {
+    if (!app.checkLogin()) return;
     wx.showToast({ title: '密码修改功能开发中', icon: 'none' });
   },
 
@@ -76,9 +88,13 @@ Page({
       title: '退出登录',
       content: '确定要退出登录吗？',
       confirmColor: '#FF6B6B',
-      success(res) {
+      success: (res) => {
         if (res.confirm) {
           app.logout();
+          this.setData({
+            isLoggedIn: false,
+            userInfo: {},
+          });
         }
       },
     });
