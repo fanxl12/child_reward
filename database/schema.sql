@@ -203,10 +203,6 @@ CREATE TRIGGER update_reward_items_updated_at
     BEFORE UPDATE ON reward_items
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_redemption_records_updated_at
-    BEFORE UPDATE ON redemption_records
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 -- ============================================
 -- 初始化示例数据（可选）
 -- ============================================

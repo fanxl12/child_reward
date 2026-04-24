@@ -1,0 +1,46 @@
+# ============================================
+# 儿童表现记录系统 - Docker Compose 部署配置
+# ============================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: child_reward_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: child_reward
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d child_reward"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: child_reward_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      # 数据库连接指向 docker-compose 中的 db 服务
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/child_reward
+      DATABASE_SYNC_URL: postgresql+psycopg2://postgres:postgres@db:5432/child_reward
+      DEBUG: "true"
+    env_file:
+      # 从 api 目录下的 .env 读取其余配置（如 SECRET_KEY、WECHAT_APP_ID 等）
+      - ../.env
+
+volumes:
+  postgres_data:
