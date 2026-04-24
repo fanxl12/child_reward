@@ -53,10 +53,12 @@ Page({
       const res = await api.getChildren();
       this.setData({ children: res.children });
       
-      // 设置当前儿童
+      // 设置当前儿童（使用 API 返回的最新数据，确保余额等字段已刷新）
       const saved = app.globalData.currentChild;
-      if (saved && res.children.find(c => c.id === saved.id)) {
-        this.setData({ currentChild: saved });
+      const foundChild = saved && res.children.find(c => c.id === saved.id);
+      if (foundChild) {
+        this.setData({ currentChild: foundChild });
+        app.setCurrentChild(foundChild);
       } else if (res.children.length > 0) {
         const child = res.children[0];
         this.setData({ currentChild: child });

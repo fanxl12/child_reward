@@ -191,10 +191,11 @@
 .calendar-grid {
   display: flex;
   flex-wrap: wrap;
+  gap: 12rpx 6rpx;
 }
 
 .calendar-cell {
-  width: calc(100% / 7);
+  width: calc((100% - 36rpx) / 7);
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
@@ -222,6 +223,10 @@
 
 .cell-today {
   background: var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+.cell-today:not(.cell-good):not(.cell-bad) {
   border-radius: 50%;
 }
 
@@ -248,13 +253,17 @@
 
 .cell-dot {
   font-size: 18rpx;
-  margin-top: -4rpx;
+  margin-top: 2rpx;
+  line-height: 1;
 }
 
 .cell-coins {
   font-size: 18rpx;
   color: var(--color-coin-dark);
   font-weight: 600;
+  margin-top: 2rpx;
+  margin-bottom: 4rpx;
+  line-height: 1;
 }
 
 /* ---- 悬浮按钮 ---- */
