@@ -128,10 +128,21 @@ child_reward/
    ```
 
 6. **启动服务**
+
+   在已激活的虚拟环境中执行（推荐用 `python -m`，避免 Windows 下找不到 `uvicorn` 命令）。
+
+   **方式一：在 `api` 目录下启动**
    ```bash
    cd api
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
+
+   **方式二：在项目根目录 `child_reward` 下启动**
+   ```bash
+   python -m uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+   说明：若当前目录是 `api`，应用入口应写 `main:app`；若在项目根目录，应写 `api.main:app`，两者不要混用。
 
 7. **访问API文档**
    - Swagger UI: http://localhost:8000/docs
