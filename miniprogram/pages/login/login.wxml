@@ -4,7 +4,7 @@
 <view class="page-login">
   <view class="login-header">
     <text class="login-emoji">⭐</text>
-    <text class="login-title">童星记录</text>
+    <text class="login-title">童年小印记</text>
     <text class="login-subtitle">记录每一天的成长与进步</text>
   </view>
 

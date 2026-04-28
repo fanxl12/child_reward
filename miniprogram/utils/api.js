@@ -4,10 +4,10 @@
 // 开发环境配置（根据实际情况修改）
 const DEV_BASE_URL = 'http://localhost:8000';
 // 生产环境配置
-const PROD_BASE_URL = 'https://your-api-domain.com';
+const PROD_BASE_URL = 'https://api.fanxl.cn/api';
 
 // 根据环境自动切换
-const isDevelopment = true; // 开发时设置为 true，发布时设置为 false
+const isDevelopment = false; // 开发时设置为 true，发布时设置为 false
 const BASE_URL = isDevelopment ? DEV_BASE_URL : PROD_BASE_URL;
 
 /**

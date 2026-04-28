@@ -77,7 +77,7 @@ Page({
 
   onAbout() {
     wx.showModal({
-      title: '关于童星记录',
+      title: '关于童年小印记',
       content: '版本 1.0.0\n\n一款帮助家长记录儿童日常表现、管理奖励币的小程序。',
       showCancel: false,
     });
