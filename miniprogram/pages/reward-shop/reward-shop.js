@@ -16,8 +16,11 @@ Page({
   },
 
   onShow() {
-    if (!app.checkLogin()) return;
-    this.setData({ currentChild: app.globalData.currentChild || {} });
+    if (app.globalData.token) {
+      this.setData({ currentChild: app.globalData.currentChild || {} });
+    } else {
+      this.setData({ currentChild: {} });
+    }
     this.loadRewardItems();
   },
 
@@ -69,6 +72,7 @@ Page({
 
   // ---- 兑换流程 ----
   onRedeemItem(e) {
+    if (!app.checkLogin()) return;
     const item = e.currentTarget.dataset.item;
     const { currentChild } = this.data;
     if (currentChild.coin_balance < item.coin_cost) {

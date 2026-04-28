@@ -46,8 +46,24 @@ Page({
   },
 
   onShow() {
-    if (!app.checkLogin()) return;
-    this.loadChildren();
+    if (app.globalData.token) {
+      this.loadChildren();
+    } else {
+      const { year, month } = this.data;
+      const grid = util.generateCalendarGrid(year, month);
+      this.setData({
+        currentChild: {},
+        children: [],
+        monthText: util.monthName(month),
+        calendarDays: grid,
+        stats: {
+          goodDays: 0,
+          badDays: 0,
+          totalEarned: 0,
+          totalDeducted: 0,
+        },
+      });
+    }
   },
 
   /**
@@ -90,12 +106,12 @@ Page({
     // 先更新月份显示，不依赖儿童数据
     this.setData({ monthText: util.monthName(month) });
     
-    if (!currentChild.id) return;
-    
-    // 生成日历网格
     const grid = util.generateCalendarGrid(year, month);
+    if (!currentChild.id) {
+      this.setData({ calendarDays: grid });
+      return;
+    }
     
-    // 获取月度表现数据
     try {
       const res = await api.getMonthlyPerformance(currentChild.id, year, month);
       
@@ -229,6 +245,7 @@ Page({
   },
 
   onManageChildren() {
+    if (!app.checkLogin()) return;
     this.setData({ showChildPicker: false });
     wx.navigateTo({ url: '/pages/children/children' });
   },
@@ -244,6 +261,7 @@ Page({
 
   // ---- 添加记录 ----
   onAddRecord() {
+    if (!app.checkLogin()) return;
     this.setData({
       showAddRecord: true,
       recordForm: {
@@ -330,6 +348,7 @@ Page({
 
   // ---- 提交记录 ----
   async onSubmitRecord() {
+    if (!app.checkLogin()) return;
     const { recordForm, currentChild } = this.data;
     
     if (!recordForm.date || !recordForm.rating) {

@@ -1,4 +1,5 @@
 // 日期详情页逻辑
+const app = getApp();
 const api = require('../../utils/api');
 
 Page({
@@ -14,6 +15,10 @@ Page({
   },
 
   onLoad(options) {
+    if (!app.globalData.token) {
+      wx.navigateTo({ url: '/pages/login/login' });
+      return;
+    }
     const { childId, date } = options;
     this.setData({ childId, date });
     this.parseDateDisplay(date);
