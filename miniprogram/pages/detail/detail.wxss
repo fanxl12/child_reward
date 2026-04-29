@@ -44,13 +44,15 @@
 }
 
 .date-full {
-  font-size: 26rpx;
+  font-size: 30rpx;
   color: var(--color-text-secondary);
+  font-weight: 600;
 }
 
 .date-weekday {
   font-size: 24rpx;
   color: var(--color-text-hint);
+  margin-top: 4rpx;
 }
 
 .rating-badge {
@@ -84,6 +86,7 @@
   font-size: 30rpx;
   color: var(--color-text-primary);
   line-height: 1.8;
+  margin-top: 12rpx;
 }
 
 /* 明细列表 */

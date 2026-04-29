@@ -5,7 +5,7 @@
   <!-- 顶部日期卡片 -->
   <view class="date-card {{record.overall_rating === 'good' ? 'date-card-good' : 'date-card-bad'}}">
     <view class="date-info">
-      <text class="date-day">{{dateDay}}</text>
+      <text class="date-day">{{dateDay}}日</text>
       <view class="date-meta">
         <text class="date-full">{{dateText}}</text>
         <text class="date-weekday">{{weekdayText}}</text>
@@ -19,7 +19,7 @@
 
   <!-- 评语卡片 -->
   <view class="card" wx:if="{{record.comment}}">
-    <text class="card-title">📝 评语</text>
+    <text class="card-title">📝 评语：</text>
     <text class="comment-text">{{record.comment}}</text>
   </view>
 

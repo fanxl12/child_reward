@@ -30,7 +30,7 @@ Page({
     const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     this.setData({
       dateDay: d.getDate(),
-      dateText: `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`,
+      dateText: `${d.getFullYear()}年${d.getMonth() + 1}月`,
       weekdayText: weekdays[d.getDay()],
     });
   },
