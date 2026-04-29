@@ -7,7 +7,7 @@
 
 /* 头部 */
 .shop-header {
-  background: linear-gradient(135deg, var(--color-coin-dark), var(--color-coin));
+  background: linear-gradient(180deg, var(--color-coin-dark), var(--color-coin));
   padding: 40rpx 32rpx;
   border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
