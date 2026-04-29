@@ -25,7 +25,10 @@
 
   <!-- 奖惩明细 -->
   <view class="card" wx:if="{{record.reward_records.length > 0}}">
-    <text class="card-title">📋 奖惩明细</text>
+    <view class="detail-head">
+      <text class="card-title">📋 奖惩明细</text>
+      <view class="btn-add-detail" bindtap="onOpenAddReward">添加奖惩</view>
+    </view>
     <view class="detail-list">
       <view 
         class="detail-item" 
@@ -37,14 +40,21 @@
         </view>
         <view class="detail-content">
           <text class="detail-desc">{{item.description}}</text>
-          <text class="detail-type tag {{item.type === 'reward' ? 'tag-good' : 'tag-bad'}}">
+          <view class="detail-type tag {{item.type === 'reward' ? 'tag-good' : 'tag-bad'}}">
             {{item.type === 'reward' ? '奖励' : '惩罚'}}
-          </text>
+          </view>
         </view>
         <text class="detail-coins {{item.type === 'reward' ? 'coins-positive' : 'coins-negative'}}">
           {{item.type === 'reward' ? '+' : '-'}}{{item.coins}} 🪙
         </text>
       </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{hasRecord && (!record.reward_records || record.reward_records.length === 0)}}">
+    <view class="empty-detail">
+      <text class="empty-detail-text">今日暂无奖惩明细</text>
+      <view class="btn-add-detail" bindtap="onOpenAddReward">添加第一条</view>
     </view>
   </view>
 
@@ -73,5 +83,39 @@
     <text class="empty-state-icon">📭</text>
     <text class="empty-state-text">该日期暂无记录</text>
     <view class="btn-primary" style="margin-top: 32rpx;" bindtap="onAddRecord">添加记录</view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showAddReward}}" bindtap="onCloseAddReward">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">添加奖惩</text>
+        <view class="modal-close" bindtap="onCloseAddReward">✕</view>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">类型</text>
+        <view class="reward-type-toggle">
+          <view class="toggle-item {{newReward.type === 'reward' ? 'toggle-active-good' : ''}}"
+            bindtap="onNewRewardType" data-type="reward">奖励</view>
+          <view class="toggle-item {{newReward.type === 'punishment' ? 'toggle-active-bad' : ''}}"
+            bindtap="onNewRewardType" data-type="punishment">惩罚</view>
+        </view>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">描述</text>
+        <input class="form-input" placeholder="例如：主动收拾玩具" value="{{newReward.description}}" bindinput="onNewRewardDesc" />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">币数</text>
+        <input class="form-input" type="number" placeholder="请输入正整数" value="{{newReward.coins}}" bindinput="onNewRewardCoins" bindblur="onNewRewardCoins" />
+      </view>
+
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseAddReward">取消</view>
+        <view class="btn-primary" bindtap="onSubmitAddReward">保存</view>
+      </view>
+    </view>
   </view>
 </view>

@@ -94,6 +94,12 @@
   margin-top: 8rpx;
 }
 
+.detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .detail-item {
   display: flex;
   align-items: center;
@@ -187,4 +193,143 @@
   width: 2rpx;
   height: 48rpx;
   background: var(--color-border);
+}
+
+.btn-add-detail {
+  padding: 8rpx 20rpx;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.empty-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.empty-detail-text {
+  font-size: 28rpx;
+  color: var(--color-text-secondary);
+}
+
+/* 添加奖惩弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 620rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: 28rpx;
+  box-sizing: border-box;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.modal-close {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-hint);
+  font-size: 32rpx;
+}
+
+.form-item {
+  margin-top: 20rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: var(--color-bg-section);
+  border-radius: var(--radius-md);
+  font-size: 28rpx;
+  box-sizing: border-box;
+  line-height: 80rpx;
+}
+
+.reward-type-toggle {
+  display: flex;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2rpx solid var(--color-border);
+  width: fit-content;
+}
+
+.toggle-item {
+  padding: 10rpx 24rpx;
+  font-size: 26rpx;
+  background: var(--color-bg-section);
+}
+
+.toggle-active-good {
+  background: var(--color-success);
+  color: #FFFFFF;
+}
+
+.toggle-active-bad {
+  background: var(--color-danger);
+  color: #FFFFFF;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 28rpx;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 0;
+  border-radius: var(--radius-full);
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #FFFFFF;
+}
+
+.btn-secondary {
+  background: var(--color-bg-section);
+  color: var(--color-text-primary);
+  border: 2rpx solid var(--color-border);
 }

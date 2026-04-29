@@ -12,6 +12,12 @@ Page({
     dateText: '',
     weekdayText: '',
     netCoins: 0,
+    showAddReward: false,
+    newReward: {
+      type: 'reward',
+      description: '',
+      coins: '',
+    },
   },
 
   onLoad(options) {
@@ -51,5 +57,77 @@ Page({
 
   onAddRecord() {
     wx.navigateBack();
+  },
+
+  onOpenAddReward() {
+    this.setData({
+      showAddReward: true,
+      newReward: {
+        type: 'reward',
+        description: '',
+        coins: '',
+      },
+    });
+  },
+
+  onCloseAddReward() {
+    this.setData({ showAddReward: false });
+  },
+
+  onNewRewardType(e) {
+    this.setData({ 'newReward.type': e.currentTarget.dataset.type });
+  },
+
+  onNewRewardDesc(e) {
+    this.setData({
+      newReward: { ...this.data.newReward, description: e.detail.value },
+    });
+  },
+
+  onNewRewardCoins(e) {
+    const value = e.detail.value.replace(/[^0-9]/g, '');
+    this.setData({
+      newReward: { ...this.data.newReward, coins: value },
+    });
+  },
+
+  async onSubmitAddReward() {
+    const { childId, date, record, newReward } = this.data;
+    const description = (newReward.description || '').trim();
+    const coinsStr = String(newReward.coins || '').trim();
+
+    if (!description || coinsStr === '') {
+      wx.showToast({ title: '请填写完整', icon: 'none' });
+      return;
+    }
+
+    const coins = parseInt(coinsStr, 10);
+    if (!coins || coins <= 0) {
+      wx.showToast({ title: '币数需大于0', icon: 'none' });
+      return;
+    }
+
+    const rewardRecords = Array.isArray(record.reward_records) ? [...record.reward_records] : [];
+    rewardRecords.push({
+      type: newReward.type,
+      description,
+      coins,
+    });
+
+    try {
+      wx.showLoading({ title: '保存中...' });
+      await api.updatePerformance(childId, date, {
+        overall_rating: record.overall_rating,
+        comment: record.comment || null,
+        reward_records: rewardRecords,
+      });
+      wx.hideLoading();
+      wx.showToast({ title: '添加成功', icon: 'success' });
+      this.setData({ showAddReward: false });
+      this.loadDetail();
+    } catch (err) {
+      wx.hideLoading();
+      console.error('追加奖惩失败', err);
+    }
   },
 });
