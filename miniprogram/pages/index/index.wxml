@@ -69,7 +69,7 @@
         bindtap="onDayTap" data-item="{{item}}">
         <text class="cell-day" wx:if="{{!item.empty}}">{{item.day}}</text>
         <view class="cell-dot" wx:if="{{item.rating}}">
-          <text wx:if="{{item.rating === 'good'}}">⭐</text>
+          <text wx:if="{{item.rating === 'good'}}">👍</text>
           <text wx:if="{{item.rating === 'bad'}}">💔</text>
         </view>
         <text class="cell-coins" wx:if="{{item.coins}}">
@@ -134,7 +134,7 @@
             <view class="rating-selector">
               <view class="rating-option {{recordForm.rating === 'good' ? 'rating-active-good' : ''}}"
                 bindtap="onRatingChange" data-rating="good">
-                <text class="rating-emoji">⭐</text>
+                <text class="rating-emoji">👍</text>
                 <text>表现好</text>
               </view>
               <view class="rating-option {{recordForm.rating === 'bad' ? 'rating-active-bad' : ''}}"

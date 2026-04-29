@@ -12,7 +12,7 @@
       </view>
     </view>
     <view class="rating-badge {{record.overall_rating === 'good' ? 'badge-good' : 'badge-bad'}}">
-      <text class="rating-icon">{{record.overall_rating === 'good' ? '⭐' : '💔'}}</text>
+      <text class="rating-icon">{{record.overall_rating === 'good' ? '👍' : '💔'}}</text>
       <text class="rating-text">{{record.overall_rating === 'good' ? '表现好' : '需改进'}}</text>
     </view>
   </view>
