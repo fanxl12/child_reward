@@ -13,6 +13,7 @@ from api.schemas.user import (
     WechatLoginRequest,
     UserUpdateRequest,
     ChangePasswordRequest,
+    SetPasswordRequest,
     UserResponse,
     TokenResponse,
     MessageResponse,
@@ -67,6 +68,7 @@ async def register(
     user = User(
         username=request.username,
         password_hash=get_password_hash(request.password),
+        password_initialized=True,
         phone=request.phone,
         nickname=request.nickname or request.username,
     )
@@ -152,6 +154,7 @@ async def wechat_login(
         user = User(
             username=f"wx_{openid[:8]}",  # 使用 openid 前8位作为用户名
             password_hash=get_password_hash(openid),  # 使用 openid 作为密码
+            password_initialized=False,
             nickname="微信用户",
             wechat_openid=openid,
         )
@@ -187,11 +190,34 @@ async def update_me(
     """
     更新当前用户信息
     
+    - **username**: 用户名（3-50 字符，全局唯一）
     - **nickname**: 昵称
     - **avatar_url**: 头像地址
     - **phone**: 手机号码
     """
     update_data = request.model_dump(exclude_unset=True)
+    
+    # 检查用户名唯一性
+    if "username" in update_data and update_data["username"] is not None:
+        new_username = update_data["username"].strip()
+        if len(new_username) < 3:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="用户名至少 3 个字符",
+            )
+        if new_username != current_user.username:
+            existing = await db.execute(
+                select(User).where(
+                    User.username == new_username,
+                    User.id != current_user.id,
+                )
+            )
+            if existing.scalar_one_or_none():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="用户名已被占用",
+                )
+        update_data["username"] = new_username
     
     # 检查手机号唯一性
     if "phone" in update_data and update_data["phone"]:
@@ -223,6 +249,12 @@ async def change_password(
     db: AsyncSession = Depends(get_db),
 ):
     """修改密码"""
+    if not current_user.password_initialized:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="当前账号尚未设置密码，请先设置密码",
+        )
+
     if not verify_password(request.old_password, current_user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -233,3 +265,23 @@ async def change_password(
     await db.flush()
     
     return MessageResponse(message="密码修改成功")
+
+
+@user_router.post("/set-password", response_model=MessageResponse)
+async def set_password(
+    request: SetPasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """微信账号首次设置密码（无需原密码）"""
+    if current_user.password_initialized:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="当前账号已设置密码，请使用修改密码功能",
+        )
+
+    current_user.password_hash = get_password_hash(request.new_password)
+    current_user.password_initialized = True
+    await db.flush()
+
+    return MessageResponse(message="密码设置成功")

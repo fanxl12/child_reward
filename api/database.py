@@ -1,6 +1,7 @@
 """
 儿童表现记录系统 - 数据库连接
 """
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
@@ -45,3 +46,23 @@ async def init_db():
     """初始化数据库表（开发环境使用）"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # 轻量迁移：为历史库补充密码初始化状态字段（仅首次补列时执行）
+        column_check = await conn.execute(
+            text(
+                "SELECT 1 FROM information_schema.columns "
+                "WHERE table_name = 'users' AND column_name = 'password_initialized'"
+            )
+        )
+        if column_check.first() is None:
+            await conn.execute(
+                text(
+                    "ALTER TABLE users "
+                    "ADD COLUMN password_initialized BOOLEAN NOT NULL DEFAULT TRUE"
+                )
+            )
+            await conn.execute(
+                text(
+                    "UPDATE users SET password_initialized = FALSE "
+                    "WHERE wechat_openid IS NOT NULL"
+                )
+            )

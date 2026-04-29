@@ -51,6 +51,11 @@
       <text class="menu-label">修改昵称</text>
       <text class="menu-arrow">›</text>
     </view>
+    <view class="menu-item" bindtap="onEditUsername">
+      <text class="menu-icon">👤</text>
+      <text class="menu-label">修改用户名</text>
+      <text class="menu-arrow">›</text>
+    </view>
     <view class="menu-item" bindtap="onChangePassword">
       <text class="menu-icon">🔑</text>
       <text class="menu-label">修改密码</text>
@@ -84,6 +89,46 @@
       <view class="modal-footer">
         <view class="btn-secondary" bindtap="onCloseEdit">取消</view>
         <view class="btn-primary" bindtap="onSaveNickname">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 修改用户名弹窗 -->
+  <view class="modal-mask" wx:if="{{showEditUsername}}" bindtap="onCloseEditUsername">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">修改用户名</text>
+        <view class="modal-close" bindtap="onCloseEditUsername">✕</view>
+      </view>
+      <view class="form-item" style="padding: 0 8rpx;">
+        <input class="form-input" placeholder="3-50 个字符，用于登录识别" value="{{newUsername}}" bindinput="onUsernameInput" />
+      </view>
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseEditUsername">取消</view>
+        <view class="btn-primary" bindtap="onSaveUsername">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 修改密码弹窗 -->
+  <view class="modal-mask" wx:if="{{showChangePassword}}" bindtap="onCloseChangePassword">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">{{hasPassword ? '修改密码' : '设置密码'}}</text>
+        <view class="modal-close" bindtap="onCloseChangePassword">✕</view>
+      </view>
+      <view wx:if="{{hasPassword}}" class="form-item" style="padding: 0 8rpx;">
+        <input password class="form-input" placeholder="请输入原密码" value="{{oldPassword}}" bindinput="onOldPasswordInput" />
+      </view>
+      <view class="form-item" style="padding: 0 8rpx;">
+        <input password class="form-input" placeholder="请输入新密码（至少 6 位）" value="{{newPassword}}" bindinput="onNewPasswordInput" />
+      </view>
+      <view class="form-item" style="padding: 0 8rpx;">
+        <input password class="form-input" placeholder="请再次输入新密码" value="{{confirmPassword}}" bindinput="onConfirmPasswordInput" />
+      </view>
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseChangePassword">取消</view>
+        <view class="btn-primary" bindtap="onSavePassword">{{hasPassword ? '保存' : '设置'}}</view>
       </view>
     </view>
   </view>

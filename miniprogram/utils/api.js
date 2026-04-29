@@ -7,7 +7,7 @@ const DEV_BASE_URL = 'http://localhost:8000';
 const PROD_BASE_URL = 'https://api.fanxl.cn/api';
 
 // 根据环境自动切换
-const isDevelopment = false; // 开发时设置为 true，发布时设置为 false
+const isDevelopment = true; // 开发时设置为 true，发布时设置为 false
 const BASE_URL = isDevelopment ? DEV_BASE_URL : PROD_BASE_URL;
 
 /**
@@ -72,6 +72,14 @@ function getUserInfo() {
 
 function updateUserInfo(data) {
   return request('/api/users/me', 'PUT', data);
+}
+
+function changePassword(data) {
+  return request('/api/users/change-password', 'POST', data);
+}
+
+function setPassword(data) {
+  return request('/api/users/set-password', 'POST', data);
 }
 
 // ---- 儿童管理 ----
@@ -144,7 +152,7 @@ function updateRedemptionStatus(childId, redemptionId, data) {
 
 module.exports = {
   request,
-  register, login, wechatLogin, getUserInfo, updateUserInfo,
+  register, login, wechatLogin, getUserInfo, updateUserInfo, changePassword, setPassword,
   getChildren, createChild, updateChild, deleteChild,
   getMonthlyPerformance, getDailyPerformance, createPerformance, updatePerformance,
   getRewardItems, createRewardItem, updateRewardItem, deleteRewardItem,

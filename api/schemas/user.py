@@ -33,6 +33,7 @@ class WechatLoginRequest(BaseModel):
 
 class UserUpdateRequest(BaseModel):
     """用户信息更新请求"""
+    username: Optional[str] = Field(None, min_length=3, max_length=50, description="用户名")
     nickname: Optional[str] = Field(None, max_length=50, description="昵称")
     avatar_url: Optional[str] = Field(None, max_length=500, description="头像地址")
     phone: Optional[str] = Field(None, max_length=20, description="手机号码")
@@ -41,6 +42,11 @@ class UserUpdateRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     """修改密码请求"""
     old_password: str = Field(..., description="原密码")
+    new_password: str = Field(..., min_length=6, max_length=100, description="新密码")
+
+
+class SetPasswordRequest(BaseModel):
+    """设置密码请求（微信用户首次设置）"""
     new_password: str = Field(..., min_length=6, max_length=100, description="新密码")
 
 
@@ -55,6 +61,7 @@ class UserResponse(BaseModel):
     phone: Optional[str] = None
     nickname: Optional[str] = None
     avatar_url: Optional[str] = None
+    has_password: bool = True
     created_at: datetime
 
     model_config = {"from_attributes": True}

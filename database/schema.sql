@@ -14,6 +14,7 @@ CREATE TABLE users (
     username        VARCHAR(50) UNIQUE NOT NULL,
     phone           VARCHAR(20) UNIQUE,
     password_hash   VARCHAR(255) NOT NULL,
+    password_initialized BOOLEAN NOT NULL DEFAULT TRUE,
     nickname        VARCHAR(50),
     avatar_url      VARCHAR(500),
     wechat_openid   VARCHAR(100) UNIQUE,
@@ -29,6 +30,7 @@ COMMENT ON TABLE users IS '用户表（家长账户）';
 COMMENT ON COLUMN users.username IS '用户名，唯一';
 COMMENT ON COLUMN users.phone IS '手机号码，唯一';
 COMMENT ON COLUMN users.password_hash IS '密码哈希值';
+COMMENT ON COLUMN users.password_initialized IS '是否已设置可用登录密码（微信首次登录为 FALSE）';
 COMMENT ON COLUMN users.nickname IS '昵称';
 COMMENT ON COLUMN users.avatar_url IS '头像地址';
 COMMENT ON COLUMN users.wechat_openid IS '微信 OpenID，用于小程序登录';
