@@ -123,7 +123,7 @@
           <!-- 日期选择 -->
           <view class="form-item">
             <text class="form-label">日期</text>
-            <picker mode="date" value="{{recordForm.date}}" bindchange="onDateChange">
+            <picker mode="date" value="{{recordForm.date}}" end="{{today}}" bindchange="onDateChange">
               <view class="form-input">{{recordForm.date}}</view>
             </picker>
           </view>

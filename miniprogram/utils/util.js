@@ -68,6 +68,13 @@ function isToday(year, month, day) {
 }
 
 /**
+ * 判断日期是否晚于今天
+ */
+function isFutureDate(dateStr) {
+  return dateStr > formatDate(new Date());
+}
+
+/**
  * 计算年龄
  */
 function calculateAge(birthday) {
@@ -105,6 +112,7 @@ module.exports = {
   getFirstDayOfMonth,
   generateCalendarGrid,
   isToday,
+  isFutureDate,
   calculateAge,
   genderText,
   monthName,

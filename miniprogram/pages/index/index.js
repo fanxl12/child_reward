@@ -9,6 +9,7 @@ Page({
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
     monthText: util.monthName(new Date().getMonth() + 1),
+    today: util.formatDate(new Date()),
     weekDays: ['一', '二', '三', '四', '五', '六', '日'],
     calendarDays: [],
 
@@ -207,6 +208,12 @@ Page({
     const item = e.currentTarget.dataset.item;
     if (item.empty) return;
 
+    // 未来日期不能记录或修改当天表现
+    if (util.isFutureDate(item.date)) {
+      wx.showToast({ title: '不能修改未来日期的表现', icon: 'none' });
+      return;
+    }
+
     if (item.rating) {
       // 有记录，跳转详情
       wx.navigateTo({
@@ -279,6 +286,11 @@ Page({
   },
 
   onDateChange(e) {
+    // 日期选择器已有结束日期限制，这里再兜底校验一次
+    if (util.isFutureDate(e.detail.value)) {
+      wx.showToast({ title: '不能选择未来日期', icon: 'none' });
+      return;
+    }
     this.setData({ 'recordForm.date': e.detail.value });
   },
 
@@ -359,6 +371,13 @@ Page({
     try {
       wx.showLoading({ title: '保存中...' });
       
+      // 提交前兜底校验，避免手动修改表单日期后提交未来表现
+      if (util.isFutureDate(recordForm.date)) {
+        wx.hideLoading();
+        wx.showToast({ title: '不能修改未来日期的表现', icon: 'none' });
+        return;
+      }
+
       await api.createPerformance(currentChild.id, {
         record_date: recordForm.date,
         overall_rating: recordForm.rating,

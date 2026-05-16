@@ -1,6 +1,7 @@
 // 日期详情页逻辑
 const app = getApp();
 const api = require('../../utils/api');
+const util = require('../../utils/util');
 
 Page({
   data: {
@@ -60,6 +61,12 @@ Page({
   },
 
   onOpenAddReward() {
+    // 未来日期不能追加奖惩明细
+    if (util.isFutureDate(this.data.date)) {
+      wx.showToast({ title: '不能修改未来日期的表现', icon: 'none' });
+      return;
+    }
+
     this.setData({
       showAddReward: true,
       newReward: {
@@ -95,6 +102,12 @@ Page({
     const { childId, date, record, newReward } = this.data;
     const description = (newReward.description || '').trim();
     const coinsStr = String(newReward.coins || '').trim();
+
+    // 提交前兜底校验，避免未来日期被修改
+    if (util.isFutureDate(date)) {
+      wx.showToast({ title: '不能修改未来日期的表现', icon: 'none' });
+      return;
+    }
 
     if (!description || coinsStr === '') {
       wx.showToast({ title: '请填写完整', icon: 'none' });

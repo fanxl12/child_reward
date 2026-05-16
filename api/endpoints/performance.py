@@ -43,6 +43,15 @@ async def _verify_child_ownership(
     return child
 
 
+def _ensure_not_future_date(record_date: date) -> None:
+    """校验表现日期不能晚于服务端今天"""
+    if record_date > date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="不能修改未来日期的表现",
+        )
+
+
 @router.get("/monthly", response_model=MonthlyPerformanceResponse)
 async def get_monthly_performance(
     child_id: UUID,
@@ -169,6 +178,7 @@ async def create_performance(
     系统会自动计算奖励币并更新儿童余额。
     """
     child = await _verify_child_ownership(child_id, current_user.id, db)
+    _ensure_not_future_date(request.record_date)
     
     # 检查当日是否已有记录
     existing = await db.execute(
@@ -282,6 +292,7 @@ async def update_performance(
     更新奖惩明细时会重新计算奖励币变动。
     """
     child = await _verify_child_ownership(child_id, current_user.id, db)
+    _ensure_not_future_date(record_date)
     
     result = await db.execute(
         select(PerformanceRecord)
