@@ -194,10 +194,19 @@ Page({
     }
   },
 
+  // 获取当前小程序版本号，开发版或体验版取不到时使用默认版本
+  getAppVersion() {
+    const defaultVersion = '1.0.0';
+    const accountInfo = wx.getAccountInfoSync();
+    return accountInfo.miniProgram.version || defaultVersion;
+  },
+
+  // 展示关于弹窗
   onAbout() {
+    const version = this.getAppVersion();
     wx.showModal({
       title: '关于童年小印记',
-      content: '版本 1.0.0\n\n一款帮助家长记录儿童日常表现、管理奖励币的小程序。',
+      content: `版本 ${version}\n\n一款帮助家长记录儿童日常表现、管理奖励币的小程序。`,
       showCancel: false,
     });
   },

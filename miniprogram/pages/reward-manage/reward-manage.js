@@ -2,6 +2,15 @@
 const app = getApp();
 const api = require('../../utils/api');
 
+const DEFAULT_REWARD_ICON = '🎁';
+
+// 常用儿童奖励图标，按屏幕时间、零食、玩具、阅读、运动、外出和陪伴等场景排序
+const CHILD_REWARD_ICON_OPTIONS = [
+  '🎁', '📺', '🎮', '📱', '🍦', '🍭',
+  '🍰', '🍕', '🧸', '🧩', '🎨', '📚',
+  '🎵', '🎬', '🛝', '⚽', '🚲', '🤗',
+];
+
 Page({
   data: {
     rewardItems: [],
@@ -9,8 +18,8 @@ Page({
     // 商品表单
     showItemForm: false,
     editingItem: null,
-    itemForm: { name: '', coin_cost: '', description: '', icon: '🎁' },
-    iconOptions: ['🎁', '📺', '🎮', '🍦', '🎨', '⚽', '📚', '🎵', '🛝', '🎪', '🍰', '🎠', '🧸', '🎯', '🏊', '🎢'],
+    itemForm: { name: '', coin_cost: '', description: '', icon: DEFAULT_REWARD_ICON },
+    iconOptions: CHILD_REWARD_ICON_OPTIONS,
   },
 
   onShow() {
@@ -29,14 +38,16 @@ Page({
   },
 
   // ---- 商品管理 ----
+  // 打开新增商品弹窗，并使用默认奖励图标
   onShowAddItem() {
     this.setData({
       showItemForm: true,
       editingItem: null,
-      itemForm: { name: '', coin_cost: '', description: '', icon: '🎁' },
+      itemForm: { name: '', coin_cost: '', description: '', icon: DEFAULT_REWARD_ICON },
     });
   },
 
+  // 打开编辑商品弹窗，缺少旧图标时使用默认奖励图标
   onEditItem(e) {
     const item = e.currentTarget.dataset.item;
     this.setData({
@@ -46,7 +57,7 @@ Page({
         name: item.name,
         coin_cost: String(item.coin_cost),
         description: item.description || '',
-        icon: item.icon || '🎁',
+        icon: item.icon || DEFAULT_REWARD_ICON,
       },
     });
   },
