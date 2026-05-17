@@ -37,7 +37,7 @@ services:
       # 数据库连接指向 docker-compose 中的 db 服务
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/child_reward
       DATABASE_SYNC_URL: postgresql+psycopg2://postgres:postgres@db:5432/child_reward
-      DEBUG: "true"
+      DEBUG: "false"
     env_file:
       # 从 api 目录下的 .env 读取其余配置（如 SECRET_KEY、WECHAT_APP_ID 等）
       - ../.env
