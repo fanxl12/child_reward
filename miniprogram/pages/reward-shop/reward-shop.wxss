@@ -126,10 +126,12 @@
   margin-bottom: 12rpx;
 }
 
+/* 将价格和兑换按钮推到卡片底部，避免商品描述有无导致按钮上下错位 */
 .item-price {
   display: flex;
   align-items: center;
   gap: 6rpx;
+  margin-top: auto;
   margin-bottom: 16rpx;
 }
 
