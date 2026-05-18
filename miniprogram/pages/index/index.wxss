@@ -226,7 +226,19 @@
   border-radius: var(--radius-sm);
 }
 
+/* 今天没有记录时，只给日期数字绘制固定圆形，避免日期格子被同一行内容撑高后变成椭圆 */
 .cell-today:not(.cell-good):not(.cell-bad) {
+  background: transparent;
+  border-radius: 0;
+}
+
+.cell-today:not(.cell-good):not(.cell-bad) .cell-day {
+  display: inline-block;
+  width: 72rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  background: var(--color-primary);
   border-radius: 50%;
 }
 
