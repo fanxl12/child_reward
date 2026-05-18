@@ -1,0 +1,67 @@
+<!--
+  奖励币明细页
+  展示儿童奖励币余额和交易流水
+-->
+<view class="page-coin-detail">
+  <view class="balance-card">
+    <view class="balance-info">
+      <text class="balance-label">{{childName || '奖励币余额'}}</text>
+      <view class="balance-value">
+        <text class="balance-coin">🪙</text>
+        <text>{{balance}}</text>
+      </view>
+    </view>
+    <view class="balance-total">
+      <text>共 {{totalTransactions}} 条变动</text>
+    </view>
+  </view>
+
+  <view class="card transaction-card">
+    <view class="detail-head">
+      <text class="card-title">📋 变动明细</text>
+      <text class="page-size">每页 20 条</text>
+    </view>
+
+    <view class="detail-list" wx:if="{{transactions.length > 0}}">
+      <view
+        class="detail-item"
+        wx:for="{{transactions}}"
+        wx:key="id"
+      >
+        <view class="detail-kind">
+          <view class="detail-icon {{item.amount >= 0 ? 'icon-reward' : 'icon-punishment'}}">
+            {{item.amount >= 0 ? '🏆' : '⚡'}}
+          </view>
+          <text class="detail-kind-text {{item.amount >= 0 ? 'kind-positive' : 'kind-negative'}}">
+            {{item.typeText}}
+          </text>
+        </view>
+
+        <view class="detail-content">
+          <text class="detail-desc">{{item.titleText}}</text>
+          <text class="detail-description" wx:if="{{item.description}}">{{item.description}}</text>
+          <text class="detail-time">{{item.formattedTime}}</text>
+        </view>
+
+        <view class="detail-amount">
+          <text class="detail-coins {{item.amount >= 0 ? 'coins-positive' : 'coins-negative'}}">
+            {{item.amount >= 0 ? '+' : ''}}{{item.amount}} 🪙
+          </text>
+          <text class="detail-balance">余额 {{item.balance_after}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:elif="{{!loading}}">
+      <text class="empty-state-icon">📭</text>
+      <text class="empty-state-text">暂无奖励币变动</text>
+    </view>
+  </view>
+
+  <view class="list-status" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+  <view class="list-status" wx:elif="{{transactions.length > 0 && !hasMore}}">
+    <text>没有更多了</text>
+  </view>
+</view>

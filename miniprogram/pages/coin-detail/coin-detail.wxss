@@ -1,0 +1,185 @@
+/* 奖励币明细页样式 */
+
+.page-coin-detail {
+  min-height: 100vh;
+  padding: 32rpx;
+  padding-bottom: 64rpx;
+  box-sizing: border-box;
+}
+
+/* 顶部余额卡片 */
+.balance-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-radius: var(--radius-xl);
+  margin-bottom: 24rpx;
+  background: linear-gradient(135deg, #FFF5E0, #FFE3A8);
+  box-shadow: var(--shadow-md);
+}
+
+.balance-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.balance-label {
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.balance-value {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 8rpx;
+  font-size: 60rpx;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.balance-coin {
+  font-size: 46rpx;
+}
+
+.balance-total {
+  padding: 12rpx 20rpx;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--color-coin-dark);
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.transaction-card {
+  margin-bottom: 0;
+}
+
+/* 明细列表，样式参照表现详情页奖惩明细 */
+.detail-list {
+  margin-top: 8rpx;
+}
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-size {
+  font-size: 22rpx;
+  color: var(--color-text-hint);
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid var(--color-border);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-kind {
+  width: 72rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  flex-shrink: 0;
+}
+
+.detail-icon {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 32rpx;
+}
+
+.icon-reward {
+  background: var(--color-success-light);
+}
+
+.icon-punishment {
+  background: var(--color-danger-light);
+}
+
+.detail-kind-text {
+  font-size: 22rpx;
+  line-height: 1.2;
+}
+
+.kind-positive {
+  color: var(--color-success);
+}
+
+.kind-negative {
+  color: var(--color-danger);
+}
+
+.detail-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  min-width: 0;
+}
+
+.detail-desc {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  word-break: break-all;
+}
+
+.detail-description {
+  font-size: 23rpx;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.detail-time,
+.detail-balance {
+  font-size: 22rpx;
+  color: var(--color-text-hint);
+}
+
+.detail-amount {
+  min-width: 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+  flex-shrink: 0;
+  padding-top: 4rpx;
+}
+
+.detail-coins {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.coins-positive {
+  color: var(--color-success);
+}
+
+.coins-negative {
+  color: var(--color-danger);
+}
+
+.list-status {
+  padding: 28rpx 0 8rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--color-text-hint);
+}

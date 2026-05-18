@@ -258,11 +258,19 @@ Page({
   },
 
   // ---- 查看奖励币 ----
+  /**
+   * 点击奖励币余额进入奖励币变动明细页
+   */
   onViewCoins() {
-    // 可跳转奖励币详情页
-    wx.showToast({
-      title: `当前余额: ${this.data.currentChild.coin_balance || 0} 🪙`,
-      icon: 'none',
+    if (!app.checkLogin()) return;
+    const { currentChild } = this.data;
+    if (!currentChild.id) {
+      wx.showToast({ title: '请先选择儿童', icon: 'none' });
+      return;
+    }
+
+    wx.navigateTo({
+      url: `/pages/coin-detail/coin-detail?childId=${currentChild.id}`,
     });
   },
 

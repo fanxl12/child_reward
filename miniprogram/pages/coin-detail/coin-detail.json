@@ -1,0 +1,5 @@
+{
+  "navigationBarTitleText": "奖励币明细",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 80
+}

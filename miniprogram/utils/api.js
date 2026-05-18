@@ -134,8 +134,12 @@ function deleteRewardItem(itemId) {
 }
 
 // ---- 奖励币 & 兑换 ----
-function getCoinBalance(childId, page = 1) {
-  return request(`/api/children/${childId}/coins?page=${page}`);
+/**
+ * 获取奖励币余额和交易流水
+ * 默认每页展示 20 条，供奖励币明细页分页加载使用
+ */
+function getCoinBalance(childId, page = 1, pageSize = 20) {
+  return request(`/api/children/${childId}/coins?page=${page}&page_size=${pageSize}`);
 }
 
 function redeemReward(childId, data) {

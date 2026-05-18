@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/login/login",
     "pages/detail/detail",
+    "pages/coin-detail/coin-detail",
     "pages/reward-shop/reward-shop",
     "pages/children/children",
     "pages/profile/profile",

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database import get_db
 from api.models.child import Child
+from api.models.performance import RewardRecord
 from api.models.reward import RewardItem, CoinTransaction, RedemptionRecord
 from api.models.user import User
 from api.schemas.reward import (
@@ -190,13 +191,42 @@ async def get_coin_balance(
         .limit(page_size)
     )
     transactions = result.scalars().all()
+
+    # 补充表现奖惩对应的描述，页面用 description 作为备注展示。
+    performance_ids = [
+        t.related_performance_id for t in transactions if t.related_performance_id
+    ]
+    description_map = {}
+    if performance_ids:
+        reward_result = await db.execute(
+            select(RewardRecord).where(RewardRecord.performance_id.in_(performance_ids))
+        )
+        for reward_record in reward_result.scalars().all():
+            key = (reward_record.performance_id, reward_record.type)
+            description_map.setdefault(key, []).append(reward_record.description)
     
     return CoinBalanceResponse(
         child_id=child.id,
         child_name=child.name,
         balance=child.coin_balance,
         transactions=[
-            CoinTransactionResponse.model_validate(t) for t in transactions
+            CoinTransactionResponse(
+                id=t.id,
+                type=t.type,
+                amount=t.amount,
+                balance_after=t.balance_after,
+                description="、".join(
+                    description_map.get(
+                        (
+                            t.related_performance_id,
+                            "reward" if t.type == "earn" else "punishment",
+                        ),
+                        [],
+                    )
+                ) or t.description,
+                created_at=t.created_at,
+            )
+            for t in transactions
         ],
         total_transactions=total,
     )
