@@ -173,61 +173,66 @@ async def get_coin_balance(
     """
     child = await _verify_child(child_id, current_user.id, db)
     
-    # 查询总数
-    count_result = await db.execute(
-        select(func.count()).select_from(CoinTransaction).where(
-            CoinTransaction.child_id == child_id
-        )
-    )
-    total = count_result.scalar()
-    
-    # 查询流水
-    offset = (page - 1) * page_size
+    # 查询原始流水后再按奖惩明细拆分，保证“主动收轮滑鞋 +3”这类单条奖励能独立展示。
     result = await db.execute(
         select(CoinTransaction)
         .where(CoinTransaction.child_id == child_id)
         .order_by(CoinTransaction.created_at.desc())
-        .offset(offset)
-        .limit(page_size)
     )
     transactions = result.scalars().all()
 
-    # 补充表现奖惩对应的描述，页面用 description 作为备注展示。
     performance_ids = [
         t.related_performance_id for t in transactions if t.related_performance_id
     ]
-    description_map = {}
+    reward_record_map = {}
     if performance_ids:
         reward_result = await db.execute(
-            select(RewardRecord).where(RewardRecord.performance_id.in_(performance_ids))
+            select(RewardRecord)
+            .where(RewardRecord.performance_id.in_(performance_ids))
+            .order_by(RewardRecord.created_at.asc())
         )
         for reward_record in reward_result.scalars().all():
             key = (reward_record.performance_id, reward_record.type)
-            description_map.setdefault(key, []).append(reward_record.description)
+            reward_record_map.setdefault(key, []).append(reward_record)
+
+    transaction_items = []
+    for t in transactions:
+        record_type = "reward" if t.type == "earn" else "punishment"
+        reward_records = reward_record_map.get((t.related_performance_id, record_type), [])
+
+        if t.type in ("earn", "deduct") and reward_records:
+            total_coins = sum(r.coins for r in reward_records)
+            running_balance = (
+                t.balance_after - total_coins
+                if t.type == "earn"
+                else t.balance_after + total_coins
+            )
+
+            for reward_record in reward_records:
+                amount = reward_record.coins if t.type == "earn" else -reward_record.coins
+                running_balance = running_balance + amount
+                transaction_items.append(CoinTransactionResponse(
+                    id=reward_record.id,
+                    type=t.type,
+                    amount=amount,
+                    balance_after=max(0, running_balance),
+                    description=reward_record.description,
+                    created_at=reward_record.created_at,
+                ))
+            continue
+
+        transaction_items.append(CoinTransactionResponse.model_validate(t))
+
+    transaction_items.sort(key=lambda item: item.created_at, reverse=True)
+    total = len(transaction_items)
+    offset = (page - 1) * page_size
+    page_items = transaction_items[offset:offset + page_size]
     
     return CoinBalanceResponse(
         child_id=child.id,
         child_name=child.name,
         balance=child.coin_balance,
-        transactions=[
-            CoinTransactionResponse(
-                id=t.id,
-                type=t.type,
-                amount=t.amount,
-                balance_after=t.balance_after,
-                description="、".join(
-                    description_map.get(
-                        (
-                            t.related_performance_id,
-                            "reward" if t.type == "earn" else "punishment",
-                        ),
-                        [],
-                    )
-                ) or t.description,
-                created_at=t.created_at,
-            )
-            for t in transactions
-        ],
+        transactions=page_items,
         total_transactions=total,
     )
 

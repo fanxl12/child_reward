@@ -52,6 +52,43 @@ def _ensure_not_future_date(record_date: date) -> None:
         )
 
 
+async def _rebuild_coin_transactions(
+    db: AsyncSession,
+    child_id: UUID,
+    performance: PerformanceRecord,
+    balance_before: int,
+) -> None:
+    """根据当天奖惩明细重建奖励币流水，保证明细页和表现详情一致"""
+    result = await db.execute(
+        select(CoinTransaction).where(
+            CoinTransaction.child_id == child_id,
+            CoinTransaction.related_performance_id == performance.id,
+        )
+    )
+    for transaction in result.scalars().all():
+        await db.delete(transaction)
+
+    if performance.coins_earned > 0:
+        db.add(CoinTransaction(
+            child_id=child_id,
+            type="earn",
+            amount=performance.coins_earned,
+            balance_after=balance_before + performance.coins_earned,
+            description=f"{performance.record_date} 表现奖励",
+            related_performance_id=performance.id,
+        ))
+
+    if performance.coins_deducted > 0:
+        db.add(CoinTransaction(
+            child_id=child_id,
+            type="deduct",
+            amount=-performance.coins_deducted,
+            balance_after=max(0, balance_before + performance.coins_earned - performance.coins_deducted),
+            description=f"{performance.record_date} 表现惩罚",
+            related_performance_id=performance.id,
+        ))
+
+
 @router.get("/monthly", response_model=MonthlyPerformanceResponse)
 async def get_monthly_performance(
     child_id: UUID,
@@ -225,6 +262,7 @@ async def create_performance(
         db.add(reward_record)
     
     # 更新儿童奖励币余额
+    old_balance = child.coin_balance
     net_coins = coins_earned - coins_deducted
     new_balance = max(0, child.coin_balance + net_coins)
     
@@ -252,6 +290,8 @@ async def create_performance(
         db.add(deduct_transaction)
     
     child.coin_balance = new_balance
+    await db.flush()
+    await _rebuild_coin_transactions(db, child_id, performance, old_balance)
     await db.flush()
     
     # 重新加载带关联的记录
@@ -320,7 +360,8 @@ async def update_performance(
     if request.reward_records is not None:
         # 恢复旧的奖励币变动
         old_net = performance.coins_earned - performance.coins_deducted
-        child.coin_balance = max(0, child.coin_balance - old_net)
+        balance_before = max(0, child.coin_balance - old_net)
+        child.coin_balance = balance_before
         
         # 删除旧的奖惩明细
         for rr in performance.reward_records:
@@ -345,6 +386,7 @@ async def update_performance(
         # 更新余额
         new_net = new_earned - new_deducted
         child.coin_balance = max(0, child.coin_balance + new_net)
+        await _rebuild_coin_transactions(db, child_id, performance, balance_before)
     
     await db.flush()
     
