@@ -7,7 +7,7 @@ const DEV_BASE_URL = 'http://localhost:8000';
 const PROD_BASE_URL = 'https://api.fanxl.cn/api';
 
 // 根据环境自动切换
-const isDevelopment = false; // 开发时设置为 true，发布时设置为 false
+const isDevelopment = true; // 开发时设置为 true，发布时设置为 false
 const BASE_URL = isDevelopment ? DEV_BASE_URL : PROD_BASE_URL;
 
 /**
@@ -116,6 +116,10 @@ function updatePerformance(childId, date, data) {
   return request(`/api/children/${childId}/performance/${date}`, 'PUT', data);
 }
 
+function addRewardRecord(childId, date, data) {
+  return request(`/api/children/${childId}/performance/${date}/reward-records`, 'POST', data);
+}
+
 // ---- 奖励商城 ----
 function getRewardItems() {
   return request('/api/reward-items');
@@ -158,7 +162,7 @@ module.exports = {
   request,
   register, login, wechatLogin, getUserInfo, updateUserInfo, changePassword, setPassword,
   getChildren, createChild, updateChild, deleteChild,
-  getMonthlyPerformance, getDailyPerformance, createPerformance, updatePerformance,
+  getMonthlyPerformance, getDailyPerformance, createPerformance, updatePerformance, addRewardRecord,
   getRewardItems, createRewardItem, updateRewardItem, deleteRewardItem,
   getCoinBalance, redeemReward, getRedemptions, updateRedemptionStatus,
 };

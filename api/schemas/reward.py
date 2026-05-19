@@ -1,7 +1,7 @@
 """
 Pydantic Schema - 奖励商城 & 交易流水 & 兑换记录
 """
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
@@ -94,6 +94,7 @@ class CoinTransactionResponse(BaseModel):
     amount: int
     balance_after: int
     description: Optional[str] = None
+    record_date: Optional[date] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

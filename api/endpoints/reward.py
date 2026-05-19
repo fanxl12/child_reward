@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database import get_db
 from api.models.child import Child
-from api.models.performance import RewardRecord
+from api.models.performance import PerformanceRecord, RewardRecord
 from api.models.reward import RewardItem, CoinTransaction, RedemptionRecord
 from api.models.user import User
 from api.schemas.reward import (
@@ -185,11 +185,20 @@ async def get_coin_balance(
         t.related_performance_id for t in transactions if t.related_performance_id
     ]
     reward_record_map = {}
+    performance_date_map = {}
     if performance_ids:
+        # 加载 performance 的 record_date 用于归属日期显示
+        perf_result = await db.execute(
+            select(PerformanceRecord.id, PerformanceRecord.record_date)
+            .where(PerformanceRecord.id.in_(performance_ids))
+        )
+        for perf_id, rec_date in perf_result.all():
+            performance_date_map[perf_id] = rec_date
+
         reward_result = await db.execute(
             select(RewardRecord)
             .where(RewardRecord.performance_id.in_(performance_ids))
-            .order_by(RewardRecord.created_at.asc())
+            .order_by(RewardRecord.created_at.desc())
         )
         for reward_record in reward_result.scalars().all():
             key = (reward_record.performance_id, reward_record.type)
@@ -217,6 +226,7 @@ async def get_coin_balance(
                     amount=amount,
                     balance_after=max(0, running_balance),
                     description=reward_record.description,
+                    record_date=performance_date_map.get(t.related_performance_id),
                     created_at=reward_record.created_at,
                 ))
             continue

@@ -66,7 +66,7 @@ Page({
       const newTransactions = (res.transactions || []).map(item => ({
         ...item,
         typeText: this.getTypeText(item.type, item.amount),
-        titleText: this.getTitleText(item.type, item.created_at),
+        titleText: this.getTitleText(item.type, item.record_date || item.created_at),
         formattedTime: this.formatDateTime(item.created_at),
       }));
       const mergedTransactions = reset ? newTransactions : transactions.concat(newTransactions);

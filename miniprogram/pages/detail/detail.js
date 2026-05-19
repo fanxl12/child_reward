@@ -99,7 +99,7 @@ Page({
   },
 
   async onSubmitAddReward() {
-    const { childId, date, record, newReward } = this.data;
+    const { childId, date, newReward } = this.data;
     const description = (newReward.description || '').trim();
     const coinsStr = String(newReward.coins || '').trim();
 
@@ -120,19 +120,12 @@ Page({
       return;
     }
 
-    const rewardRecords = Array.isArray(record.reward_records) ? [...record.reward_records] : [];
-    rewardRecords.push({
-      type: newReward.type,
-      description,
-      coins,
-    });
-
     try {
       wx.showLoading({ title: '保存中...' });
-      await api.updatePerformance(childId, date, {
-        overall_rating: record.overall_rating,
-        comment: record.comment || null,
-        reward_records: rewardRecords,
+      await api.addRewardRecord(childId, date, {
+        type: newReward.type,
+        description,
+        coins,
       });
       wx.hideLoading();
       wx.showToast({ title: '添加成功', icon: 'success' });

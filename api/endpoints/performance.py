@@ -1,7 +1,7 @@
 """
 API 端点 - 表现记录管理
 """
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -20,6 +20,7 @@ from api.schemas.performance import (
     PerformanceResponse,
     PerformanceSummary,
     MonthlyPerformanceResponse,
+    RewardRecordItem,
     RewardRecordResponse,
 )
 from api.utils.deps import get_current_user
@@ -182,6 +183,8 @@ async def get_daily_performance(
             detail=f"未找到 {record_date} 的表现记录",
         )
     
+    # 奖惩明细按创建时间倒序，最新的排在前面
+    sorted_reward_records = sorted(record.reward_records, key=lambda rr: rr.created_at, reverse=True)
     return PerformanceResponse(
         id=record.id,
         child_id=record.child_id,
@@ -191,7 +194,7 @@ async def get_daily_performance(
         coins_earned=record.coins_earned,
         coins_deducted=record.coins_deducted,
         reward_records=[
-            RewardRecordResponse.model_validate(rr) for rr in record.reward_records
+            RewardRecordResponse.model_validate(rr) for rr in sorted_reward_records
         ],
         created_at=record.created_at,
     )
@@ -252,12 +255,14 @@ async def create_performance(
     await db.flush()
     
     # 创建奖惩明细
-    for item in request.reward_records:
+    base_time = datetime.now(timezone.utc)
+    for idx, item in enumerate(request.reward_records):
         reward_record = RewardRecord(
             performance_id=performance.id,
             type=item.type,
             description=item.description,
             coins=item.coins,
+            created_at=base_time + timedelta(milliseconds=idx),
         )
         db.add(reward_record)
     
@@ -302,6 +307,7 @@ async def create_performance(
     )
     performance = result.scalar_one()
     
+    sorted_reward_records = sorted(performance.reward_records, key=lambda rr: rr.created_at, reverse=True)
     return PerformanceResponse(
         id=performance.id,
         child_id=performance.child_id,
@@ -311,7 +317,90 @@ async def create_performance(
         coins_earned=performance.coins_earned,
         coins_deducted=performance.coins_deducted,
         reward_records=[
-            RewardRecordResponse.model_validate(rr) for rr in performance.reward_records
+            RewardRecordResponse.model_validate(rr) for rr in sorted_reward_records
+        ],
+        created_at=performance.created_at,
+    )
+
+
+@router.post("/{record_date}/reward-records", response_model=PerformanceResponse)
+async def add_reward_record(
+    child_id: UUID,
+    record_date: date,
+    request: RewardRecordItem,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    追加单条奖惩明细
+
+    仅新增一条记录，不影响已有明细。
+    系统自动更新奖励币余额。
+    """
+    child = await _verify_child_ownership(child_id, current_user.id, db)
+    _ensure_not_future_date(record_date)
+
+    result = await db.execute(
+        select(PerformanceRecord)
+        .options(selectinload(PerformanceRecord.reward_records))
+        .where(
+            PerformanceRecord.child_id == child_id,
+            PerformanceRecord.record_date == record_date,
+        )
+    )
+    performance = result.scalar_one_or_none()
+
+    if not performance:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"未找到 {record_date} 的表现记录",
+        )
+
+    # 新增单条奖惩明细（created_at 使用数据库默认值，天然最新）
+    reward_record = RewardRecord(
+        performance_id=performance.id,
+        type=request.type,
+        description=request.description,
+        coins=request.coins,
+    )
+    db.add(reward_record)
+
+    # 更新汇总字段
+    if request.type == "reward":
+        performance.coins_earned += request.coins
+    else:
+        performance.coins_deducted += request.coins
+
+    # 更新儿童余额
+    old_balance = child.coin_balance
+    net_change = request.coins if request.type == "reward" else -request.coins
+    child.coin_balance = max(0, child.coin_balance + net_change)
+
+    # 重建奖励币流水
+    balance_before = max(0, old_balance - (performance.coins_earned - performance.coins_deducted - net_change))
+    await _rebuild_coin_transactions(db, child_id, performance, balance_before)
+
+    await db.flush()
+
+    # 重新加载
+    result = await db.execute(
+        select(PerformanceRecord)
+        .options(selectinload(PerformanceRecord.reward_records))
+        .where(PerformanceRecord.id == performance.id)
+    )
+    performance = result.scalar_one()
+
+    sorted_reward_records = sorted(performance.reward_records, key=lambda rr: rr.created_at, reverse=True)
+    return PerformanceResponse(
+        id=performance.id,
+        child_id=performance.child_id,
+        record_date=performance.record_date,
+        overall_rating=performance.overall_rating,
+        comment=performance.comment,
+        coins_earned=performance.coins_earned,
+        coins_deducted=performance.coins_deducted,
+        reward_records=[
+            RewardRecordResponse.model_validate(rr) for rr in sorted_reward_records
         ],
         created_at=performance.created_at,
     )
@@ -374,12 +463,14 @@ async def update_performance(
         performance.coins_earned = new_earned
         performance.coins_deducted = new_deducted
         
-        for item in request.reward_records:
+        base_time = datetime.now(timezone.utc)
+        for idx, item in enumerate(request.reward_records):
             reward_record = RewardRecord(
                 performance_id=performance.id,
                 type=item.type,
                 description=item.description,
                 coins=item.coins,
+                created_at=base_time + timedelta(milliseconds=idx),
             )
             db.add(reward_record)
         
@@ -398,6 +489,7 @@ async def update_performance(
     )
     performance = result.scalar_one()
     
+    sorted_reward_records = sorted(performance.reward_records, key=lambda rr: rr.created_at, reverse=True)
     return PerformanceResponse(
         id=performance.id,
         child_id=performance.child_id,
@@ -407,7 +499,7 @@ async def update_performance(
         coins_earned=performance.coins_earned,
         coins_deducted=performance.coins_deducted,
         reward_records=[
-            RewardRecordResponse.model_validate(rr) for rr in performance.reward_records
+            RewardRecordResponse.model_validate(rr) for rr in sorted_reward_records
         ],
         created_at=performance.created_at,
     )
