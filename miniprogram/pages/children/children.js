@@ -6,6 +6,8 @@ const util = require('../../utils/util');
 Page({
   data: {
     children: [],
+    canManage: true,
+    hasFamily: true,
     showForm: false,
     editingChild: null,
     childForm: { name: '', gender: '', birthday: '' },
@@ -24,13 +26,21 @@ Page({
         ...c,
         avatarLetter: c.name ? c.name.slice(-1) : '?',
       }));
-      this.setData({ children });
+      this.setData({
+        children,
+        canManage: res.can_manage !== false,
+        hasFamily: res.has_family !== false,
+      });
     } catch (err) {
       console.error('加载儿童列表失败', err);
     }
   },
 
   onShowAddChild() {
+    if (!this.data.canManage) {
+      wx.showToast({ title: '只有家庭创建者可以添加孩子', icon: 'none' });
+      return;
+    }
     this.setData({
       showForm: true,
       editingChild: null,
@@ -40,6 +50,10 @@ Page({
 
   onEditChild(e) {
     const child = e.currentTarget.dataset.child;
+    if (child.can_manage === false) {
+      wx.showToast({ title: '只有家庭创建者可以编辑孩子', icon: 'none' });
+      return;
+    }
     this.setData({
       showForm: true,
       editingChild: child,
@@ -91,6 +105,10 @@ Page({
 
   onDeleteChild(e) {
     const child = e.currentTarget.dataset.child;
+    if (child.can_manage === false) {
+      wx.showToast({ title: '只有家庭创建者可以删除孩子', icon: 'none' });
+      return;
+    }
     wx.showModal({
       title: '确认删除',
       content: `确定删除「${child.name}」吗？该操作将同时删除所有关联记录，不可恢复。`,

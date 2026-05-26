@@ -25,7 +25,7 @@
           <text class="coin-label-sm">奖励币</text>
         </view>
       </view>
-      <view class="child-card-actions">
+      <view class="child-card-actions" wx:if="{{item.can_manage !== false}}">
         <view class="action-btn" bindtap="onEditChild" data-child="{{item}}">编辑</view>
         <view class="action-btn action-danger" bindtap="onDeleteChild" data-child="{{item}}">删除</view>
       </view>
@@ -35,12 +35,12 @@
     <view class="empty-state" wx:if="{{children.length === 0}}">
       <text class="empty-state-icon">👶</text>
       <text class="empty-state-text">还没有添加孩子</text>
-      <text class="empty-state-text">点击下方按钮添加</text>
+      <text class="empty-state-text">{{canManage ? '点击下方按钮添加' : (hasFamily ? '当前家庭还没有孩子' : '请先创建或加入家庭')}}</text>
     </view>
   </view>
 
   <!-- 添加按钮 -->
-  <view class="btn-primary add-child-btn" bindtap="onShowAddChild">+ 添加孩子</view>
+  <view wx:if="{{canManage}}" class="btn-primary add-child-btn" bindtap="onShowAddChild">+ 添加孩子</view>
 
   <!-- 添加/编辑弹窗 -->
   <view class="modal-mask" wx:if="{{showForm}}" bindtap="onCloseForm">

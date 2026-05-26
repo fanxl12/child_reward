@@ -23,17 +23,18 @@ from api.schemas.performance import (
     RewardRecordItem,
     RewardRecordResponse,
 )
+from api.services.family import get_current_family, get_current_member_role
 from api.utils.deps import get_current_user
 
 router = APIRouter(prefix="/api/children/{child_id}/performance", tags=["表现记录"])
 
 
 async def _verify_child_ownership(
-    child_id: UUID, user_id: UUID, db: AsyncSession
+    child_id: UUID, family_id: UUID, db: AsyncSession
 ) -> Child:
-    """验证儿童归属权"""
+    """验证儿童属于当前家庭"""
     result = await db.execute(
-        select(Child).where(Child.id == child_id, Child.user_id == user_id)
+        select(Child).where(Child.id == child_id, Child.family_id == family_id)
     )
     child = result.scalar_one_or_none()
     if not child:
@@ -42,6 +43,15 @@ async def _verify_child_ownership(
             detail="未找到该儿童信息",
         )
     return child
+
+
+async def _operator_snapshot(db: AsyncSession, current_user: User) -> dict:
+    """生成奖励币流水操作者快照"""
+    return {
+        "operator_user_id": current_user.id,
+        "operator_role": await get_current_member_role(db, current_user),
+        "operator_nickname": current_user.nickname or current_user.username,
+    }
 
 
 def _ensure_not_future_date(record_date: date) -> None:
@@ -58,6 +68,7 @@ async def _rebuild_coin_transactions(
     child_id: UUID,
     performance: PerformanceRecord,
     balance_before: int,
+    current_user: User,
 ) -> None:
     """根据当天奖惩明细重建奖励币流水，保证明细页和表现详情一致"""
     result = await db.execute(
@@ -77,6 +88,7 @@ async def _rebuild_coin_transactions(
             balance_after=balance_before + performance.coins_earned,
             description=f"{performance.record_date} 表现奖励",
             related_performance_id=performance.id,
+            **await _operator_snapshot(db, current_user),
         ))
 
     if performance.coins_deducted > 0:
@@ -87,6 +99,7 @@ async def _rebuild_coin_transactions(
             balance_after=max(0, balance_before + performance.coins_earned - performance.coins_deducted),
             description=f"{performance.record_date} 表现惩罚",
             related_performance_id=performance.id,
+            **await _operator_snapshot(db, current_user),
         ))
 
 
@@ -106,7 +119,13 @@ async def get_monthly_performance(
     
     返回该月每天的表现摘要，用于日历展示。
     """
-    await _verify_child_ownership(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    await _verify_child_ownership(child_id, family.id, db)
     
     result = await db.execute(
         select(PerformanceRecord)
@@ -165,7 +184,13 @@ async def get_daily_performance(
     
     返回当日总体评价、评语、奖惩明细。
     """
-    await _verify_child_ownership(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    await _verify_child_ownership(child_id, family.id, db)
     
     result = await db.execute(
         select(PerformanceRecord)
@@ -217,7 +242,13 @@ async def create_performance(
     
     系统会自动计算奖励币并更新儿童余额。
     """
-    child = await _verify_child_ownership(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    child = await _verify_child_ownership(child_id, family.id, db)
     _ensure_not_future_date(request.record_date)
     
     # 检查当日是否已有记录
@@ -280,6 +311,7 @@ async def create_performance(
             balance_after=child.coin_balance + coins_earned,
             description=f"{request.record_date} 表现奖励",
             related_performance_id=performance.id,
+            **await _operator_snapshot(db, current_user),
         )
         db.add(earn_transaction)
     
@@ -291,12 +323,13 @@ async def create_performance(
             balance_after=new_balance,
             description=f"{request.record_date} 表现惩罚",
             related_performance_id=performance.id,
+            **await _operator_snapshot(db, current_user),
         )
         db.add(deduct_transaction)
     
     child.coin_balance = new_balance
     await db.flush()
-    await _rebuild_coin_transactions(db, child_id, performance, old_balance)
+    await _rebuild_coin_transactions(db, child_id, performance, old_balance, current_user)
     await db.flush()
     
     # 重新加载带关联的记录
@@ -337,7 +370,13 @@ async def add_reward_record(
     仅新增一条记录，不影响已有明细。
     系统自动更新奖励币余额。
     """
-    child = await _verify_child_ownership(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    child = await _verify_child_ownership(child_id, family.id, db)
     _ensure_not_future_date(record_date)
 
     result = await db.execute(
@@ -378,7 +417,7 @@ async def add_reward_record(
 
     # 重建奖励币流水
     balance_before = max(0, old_balance - (performance.coins_earned - performance.coins_deducted - net_change))
-    await _rebuild_coin_transactions(db, child_id, performance, balance_before)
+    await _rebuild_coin_transactions(db, child_id, performance, balance_before, current_user)
 
     await db.flush()
 
@@ -420,7 +459,13 @@ async def update_performance(
     支持更新总体评价、评语和奖惩明细。
     更新奖惩明细时会重新计算奖励币变动。
     """
-    child = await _verify_child_ownership(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    child = await _verify_child_ownership(child_id, family.id, db)
     _ensure_not_future_date(record_date)
     
     result = await db.execute(
@@ -477,7 +522,7 @@ async def update_performance(
         # 更新余额
         new_net = new_earned - new_deducted
         child.coin_balance = max(0, child.coin_balance + new_net)
-        await _rebuild_coin_transactions(db, child_id, performance, balance_before)
+        await _rebuild_coin_transactions(db, child_id, performance, balance_before, current_user)
     
     await db.flush()
     

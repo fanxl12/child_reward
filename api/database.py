@@ -44,6 +44,9 @@ async def get_db():
 
 async def init_db():
     """初始化数据库表（开发环境使用）"""
+    # 导入全部模型，确保 Base.metadata 能发现新表
+    from api.models import child, family, performance, reward, user  # noqa: F401
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         # 轻量迁移：为历史库补充密码初始化状态字段（仅首次补列时执行）

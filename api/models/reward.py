@@ -11,6 +11,7 @@ from api.database import Base
 
 
 class RewardItem(Base):
+    """奖励商品，归属到家庭并仅允许家庭创建者维护"""
     __tablename__ = "reward_items"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -18,6 +19,9 @@ class RewardItem(Base):
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    family_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=True
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -44,6 +48,7 @@ class RewardItem(Base):
 
 
 class CoinTransaction(Base):
+    """奖励币流水，记录操作者快照用于历史展示"""
     __tablename__ = "coin_transactions"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -62,6 +67,11 @@ class CoinTransaction(Base):
     related_reward_item_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("reward_items.id", ondelete="SET NULL"), nullable=True
     )
+    operator_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    operator_role: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    operator_nickname: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -112,3 +122,4 @@ class RedemptionRecord(Base):
 # 避免循环导入
 from api.models.user import User  # noqa: E402, F401
 from api.models.child import Child  # noqa: E402, F401
+from api.models.family import Family  # noqa: E402, F401

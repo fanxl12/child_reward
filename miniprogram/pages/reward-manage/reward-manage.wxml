@@ -12,7 +12,7 @@
           <text class="manage-cost">🪙 {{item.coin_cost}}</text>
         </view>
       </view>
-      <view class="manage-actions">
+      <view class="manage-actions" wx:if="{{item.can_manage !== false}}">
         <view class="manage-btn" bindtap="onEditItem" data-item="{{item}}">编辑</view>
         <view class="manage-btn manage-btn-danger" bindtap="onDeleteItem" data-item="{{item}}">删除</view>
       </view>
@@ -22,10 +22,10 @@
   <view class="empty-state" wx:if="{{rewardItems.length === 0}}">
     <text class="empty-state-icon">🏪</text>
     <text class="empty-state-text">暂无奖励商品</text>
-    <text class="empty-state-text">点击下方按钮添加</text>
+    <text class="empty-state-text">{{canManage ? '点击下方按钮添加' : (hasFamily ? '当前家庭还没有奖励商品' : '请先创建或加入家庭')}}</text>
   </view>
 
-  <view class="btn-primary" style="margin: 32rpx;" bindtap="onShowAddItem">+ 添加奖励商品</view>
+  <view wx:if="{{canManage}}" class="btn-primary" style="margin: 32rpx;" bindtap="onShowAddItem">+ 添加奖励商品</view>
 
   <!-- 添加/编辑商品弹窗 -->
   <view class="modal-mask" wx:if="{{showItemForm}}" bindtap="onCloseItemForm">

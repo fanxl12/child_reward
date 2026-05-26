@@ -2,14 +2,24 @@
 const app = getApp();
 const api = require('../../utils/api');
 
+const ROLE_OPTIONS = ['爸爸', '妈妈', '爷爷', '奶奶', '外公', '外婆'];
+
 Page({
   data: {
     isLoggedIn: false,
     userInfo: {},
+    roleOptions: ROLE_OPTIONS,
+    families: [],
+    currentFamily: null,
     showEditNickname: false,
     newNickname: '',
     showEditUsername: false,
     newUsername: '',
+    showRolePicker: false,
+    showFamilyPicker: false,
+    showFamilyForm: false,
+    familyFormMode: 'create',
+    familyInput: '',
     showChangePassword: false,
     hasPassword: true,
     oldPassword: '',
@@ -23,6 +33,25 @@ Page({
       isLoggedIn,
       userInfo: app.globalData.userInfo || {},
     });
+    if (isLoggedIn) {
+      this.refreshUserAndFamilies();
+    }
+  },
+
+  // 刷新用户和家庭信息，保证角色、当前家庭与服务端一致
+  async refreshUserAndFamilies() {
+    try {
+      const userInfo = await api.getUserInfo();
+      const familyRes = await api.getFamilies();
+      const families = familyRes.families || [];
+      const currentFamilyId = userInfo.current_family_id || familyRes.current_family_id;
+      const currentFamily = families.find(item => item.id === currentFamilyId) || families[0] || null;
+      this.setData({ userInfo, families, currentFamily });
+      app.globalData.userInfo = userInfo;
+      wx.setStorageSync('userInfo', userInfo);
+    } catch (err) {
+      console.error('刷新用户家庭信息失败', err);
+    }
   },
 
   goToLogin() {
@@ -61,6 +90,113 @@ Page({
 
   onCloseEditUsername() {
     this.setData({ showEditUsername: false });
+  },
+
+  onEditRole() {
+    if (!app.checkLogin()) return;
+    if (!this.data.currentFamily) {
+      wx.showToast({ title: '请先创建或加入家庭', icon: 'none' });
+      return;
+    }
+    this.setData({ showRolePicker: true });
+  },
+
+  onCloseRolePicker() {
+    this.setData({ showRolePicker: false });
+  },
+
+  // 修改角色后，后续奖励币流水会记录新的角色快照
+  async onSelectRole(e) {
+    const role = e.currentTarget.dataset.role;
+    try {
+      wx.showLoading({ title: '保存中...' });
+      const user = await api.updateUserInfo({ role });
+      this.setData({ userInfo: user, showRolePicker: false });
+      app.globalData.userInfo = user;
+      wx.setStorageSync('userInfo', user);
+      wx.hideLoading();
+      wx.showToast({ title: '修改成功', icon: 'success' });
+    } catch (err) {
+      wx.hideLoading();
+    }
+  },
+
+  onSwitchFamily() {
+    if (!app.checkLogin()) return;
+    this.setData({ showFamilyPicker: true });
+  },
+
+  onCloseFamilyPicker() {
+    this.setData({ showFamilyPicker: false });
+  },
+
+  // 切换家庭后清空当前儿童，避免继续使用上个家庭的孩子
+  async onSelectFamily(e) {
+    const family = e.currentTarget.dataset.family;
+    if (!family || family.id === this.data.currentFamily?.id) {
+      this.setData({ showFamilyPicker: false });
+      return;
+    }
+    try {
+      wx.showLoading({ title: '切换中...' });
+      await api.switchFamily(family.id);
+      app.setCurrentChild(null);
+      await this.refreshUserAndFamilies();
+      wx.hideLoading();
+      this.setData({ showFamilyPicker: false });
+      wx.showToast({ title: '已切换家庭', icon: 'success' });
+    } catch (err) {
+      wx.hideLoading();
+    }
+  },
+
+  onShowCreateFamily() {
+    this.setData({
+      showFamilyPicker: false,
+      showFamilyForm: true,
+      familyFormMode: 'create',
+      familyInput: '',
+    });
+  },
+
+  onShowJoinFamily() {
+    this.setData({
+      showFamilyPicker: false,
+      showFamilyForm: true,
+      familyFormMode: 'join',
+      familyInput: '',
+    });
+  },
+
+  onFamilyInput(e) {
+    this.setData({ familyInput: e.detail.value });
+  },
+
+  onCloseFamilyForm() {
+    this.setData({ showFamilyForm: false });
+  },
+
+  async onSubmitFamilyForm() {
+    const value = (this.data.familyInput || '').trim();
+    if (!value) {
+      wx.showToast({ title: '请填写内容', icon: 'none' });
+      return;
+    }
+    try {
+      wx.showLoading({ title: '提交中...' });
+      if (this.data.familyFormMode === 'create') {
+        await api.createFamily({ name: value });
+      } else {
+        await api.joinFamily({ code: value.toUpperCase() });
+      }
+      app.setCurrentChild(null);
+      await this.refreshUserAndFamilies();
+      wx.hideLoading();
+      this.setData({ showFamilyForm: false });
+      wx.showToast({ title: '操作成功', icon: 'success' });
+    } catch (err) {
+      wx.hideLoading();
+    }
   },
 
   onUsernameInput(e) {

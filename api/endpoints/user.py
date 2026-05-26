@@ -21,9 +21,17 @@ from api.schemas.user import (
 from api.utils.auth import get_password_hash, verify_password, create_access_token
 from api.utils.deps import get_current_user
 from api.services.wechat import wechat_service
+from api.services.family import ensure_selected_family, get_current_family_member
 
 router = APIRouter(prefix="/api/auth", tags=["用户认证"])
 user_router = APIRouter(prefix="/api/users", tags=["用户管理"])
+
+
+def _user_response(user: User, role: str | None = None) -> UserResponse:
+    """构建用户响应，role 表示当前家庭成员角色"""
+    data = UserResponse.model_validate(user)
+    data.role = role
+    return data
 
 
 # ============================================
@@ -81,7 +89,7 @@ async def register(
     
     return TokenResponse(
         access_token=access_token,
-        user=UserResponse.model_validate(user),
+        user=_user_response(user),
     )
 
 
@@ -113,7 +121,7 @@ async def login(
     
     return TokenResponse(
         access_token=access_token,
-        user=UserResponse.model_validate(user),
+        user=_user_response(user),
     )
 
 
@@ -161,13 +169,17 @@ async def wechat_login(
         db.add(user)
         await db.flush()
         await db.refresh(user)
+    else:
+        await ensure_selected_family(db, user)
+
+    member = await get_current_family_member(db, user)
     
     # 生成令牌
     access_token = create_access_token(user.id)
     
     return TokenResponse(
         access_token=access_token,
-        user=UserResponse.model_validate(user),
+        user=_user_response(user, member.role if member else None),
     )
 
 
@@ -176,9 +188,14 @@ async def wechat_login(
 # ============================================
 
 @user_router.get("/me", response_model=UserResponse)
-async def get_me(current_user: User = Depends(get_current_user)):
+async def get_me(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """获取当前登录用户信息"""
-    return UserResponse.model_validate(current_user)
+    await ensure_selected_family(db, current_user)
+    member = await get_current_family_member(db, current_user)
+    return _user_response(current_user, member.role if member else None)
 
 
 @user_router.put("/me", response_model=UserResponse)
@@ -196,6 +213,7 @@ async def update_me(
     - **phone**: 手机号码
     """
     update_data = request.model_dump(exclude_unset=True)
+    role = update_data.pop("role", None)
     
     # 检查用户名唯一性
     if "username" in update_data and update_data["username"] is not None:
@@ -235,11 +253,21 @@ async def update_me(
     
     for field, value in update_data.items():
         setattr(current_user, field, value)
+
+    # 角色属于当前家庭成员关系，不属于全局用户资料
+    if role is not None:
+        member = await get_current_family_member(db, current_user)
+        if not member:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="请先创建或加入家庭",
+            )
+        member.role = role
     
     await db.flush()
     await db.refresh(current_user)
-    
-    return UserResponse.model_validate(current_user)
+    member = await get_current_family_member(db, current_user)
+    return _user_response(current_user, member.role if member else None)
 
 
 @user_router.post("/change-password", response_model=MessageResponse)

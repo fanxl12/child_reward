@@ -40,6 +40,7 @@
         <view class="detail-content">
           <text class="detail-desc">{{item.titleText}}</text>
           <text class="detail-description" wx:if="{{item.description}}">{{item.description}}</text>
+          <text class="detail-description" wx:if="{{item.operatorText}}">修改人：{{item.operatorText}}</text>
           <text class="detail-time">{{item.formattedTime}}</text>
         </view>
 

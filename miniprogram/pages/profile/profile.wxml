@@ -15,6 +15,7 @@
         <text wx:if="{{userInfo.nickname}}" class="profile-name">{{userInfo.nickname}}</text>
         <text wx:elif="{{userInfo.username}}" class="profile-name">{{userInfo.username}}</text>
         <text wx:else class="profile-name">用户</text>
+        <text wx:if="{{currentFamily}}" class="profile-family" bindtap="onSwitchFamily">{{currentFamily.name}} · {{currentFamily.code}}</text>
         <text wx:if="{{userInfo.username}}" class="profile-id">@{{userInfo.username}}</text>
       </view>
     </block>
@@ -32,6 +33,18 @@
   <!-- 功能菜单 -->
   <view class="menu-section">
     <view class="menu-title">管理</view>
+    <view class="menu-item" bindtap="onSwitchFamily">
+      <text class="menu-icon">🏠</text>
+      <text class="menu-label">切换家庭</text>
+      <text class="menu-value">{{currentFamily ? currentFamily.name : '未选择'}}</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onEditRole">
+      <text class="menu-icon">🏷️</text>
+      <text class="menu-label">修改角色</text>
+      <text class="menu-value">{{userInfo.role || '未设置'}}</text>
+      <text class="menu-arrow">›</text>
+    </view>
     <view class="menu-item" bindtap="goToChildren">
       <text class="menu-icon">👶</text>
       <text class="menu-label">儿童管理</text>
@@ -75,6 +88,73 @@
   <!-- 登录 / 退出登录 -->
   <view wx:if="{{!isLoggedIn}}" class="logout-btn" style="background-color: #FF7B6B; color: #fff;" bindtap="goToLogin">登录</view>
   <view wx:if="{{isLoggedIn}}" class="logout-btn" bindtap="onLogout">退出登录</view>
+
+  <!-- 修改角色弹窗 -->
+  <view class="modal-mask" wx:if="{{showRolePicker}}" bindtap="onCloseRolePicker">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">修改角色</text>
+        <view class="modal-close" bindtap="onCloseRolePicker">✕</view>
+      </view>
+      <view class="option-list">
+        <view
+          class="option-item {{userInfo.role === item ? 'option-active' : ''}}"
+          wx:for="{{roleOptions}}"
+          wx:key="index"
+          bindtap="onSelectRole"
+          data-role="{{item}}"
+        >{{item}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 家庭切换弹窗 -->
+  <view class="modal-mask" wx:if="{{showFamilyPicker}}" bindtap="onCloseFamilyPicker">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">我的家庭</text>
+        <view class="modal-close" bindtap="onCloseFamilyPicker">✕</view>
+      </view>
+      <view class="option-list">
+        <view
+          class="option-item {{currentFamily && currentFamily.id === item.id ? 'option-active' : ''}}"
+          wx:for="{{families}}"
+          wx:key="id"
+          bindtap="onSelectFamily"
+          data-family="{{item}}"
+        >
+          <text>{{item.name}}</text>
+          <text class="option-sub">{{item.code}}{{item.is_owner ? ' · 创建者' : ''}}</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onShowJoinFamily">加入家庭</view>
+        <view class="btn-primary" bindtap="onShowCreateFamily">创建家庭</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 创建/加入家庭弹窗 -->
+  <view class="modal-mask" wx:if="{{showFamilyForm}}" bindtap="onCloseFamilyForm">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">{{familyFormMode === 'create' ? '创建家庭' : '加入家庭'}}</text>
+        <view class="modal-close" bindtap="onCloseFamilyForm">✕</view>
+      </view>
+      <view class="form-item" style="padding: 0 8rpx;">
+        <input
+          class="form-input"
+          placeholder="{{familyFormMode === 'create' ? '请输入家庭名称' : '请输入 6 位家庭编号'}}"
+          value="{{familyInput}}"
+          bindinput="onFamilyInput"
+        />
+      </view>
+      <view class="modal-footer">
+        <view class="btn-secondary" bindtap="onCloseFamilyForm">取消</view>
+        <view class="btn-primary" bindtap="onSubmitFamilyForm">确定</view>
+      </view>
+    </view>
+  </view>
 
   <!-- 修改昵称弹窗 -->
   <view class="modal-mask" wx:if="{{showEditNickname}}" bindtap="onCloseEdit">

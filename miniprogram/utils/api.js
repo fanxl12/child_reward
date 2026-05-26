@@ -82,6 +82,23 @@ function setPassword(data) {
   return request('/api/users/set-password', 'POST', data);
 }
 
+// ---- 家庭管理 ----
+function getFamilies() {
+  return request('/api/families');
+}
+
+function createFamily(data) {
+  return request('/api/families', 'POST', data);
+}
+
+function joinFamily(data) {
+  return request('/api/families/join', 'POST', data);
+}
+
+function switchFamily(familyId) {
+  return request('/api/families/switch', 'POST', { family_id: familyId });
+}
+
 // ---- 儿童管理 ----
 function getChildren() {
   return request('/api/children');
@@ -161,6 +178,7 @@ function updateRedemptionStatus(childId, redemptionId, data) {
 module.exports = {
   request,
   register, login, wechatLogin, getUserInfo, updateUserInfo, changePassword, setPassword,
+  getFamilies, createFamily, joinFamily, switchFamily,
   getChildren, createChild, updateChild, deleteChild,
   getMonthlyPerformance, getDailyPerformance, createPerformance, updatePerformance, addRewardRecord,
   getRewardItems, createRewardItem, updateRewardItem, deleteRewardItem,

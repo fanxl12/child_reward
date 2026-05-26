@@ -14,6 +14,8 @@ const CHILD_REWARD_ICON_OPTIONS = [
 Page({
   data: {
     rewardItems: [],
+    canManage: true,
+    hasFamily: true,
 
     // 商品表单
     showItemForm: false,
@@ -31,7 +33,11 @@ Page({
     try {
       const res = await api.getRewardItems();
       const items = res.items || [];
-      this.setData({ rewardItems: items });
+      this.setData({
+        rewardItems: items,
+        canManage: res.can_manage !== false,
+        hasFamily: res.has_family !== false,
+      });
     } catch (err) {
       console.error('加载商品失败', err);
     }
@@ -40,6 +46,10 @@ Page({
   // ---- 商品管理 ----
   // 打开新增商品弹窗，并使用默认奖励图标
   onShowAddItem() {
+    if (!this.data.canManage) {
+      wx.showToast({ title: '只有家庭创建者可以添加商品', icon: 'none' });
+      return;
+    }
     this.setData({
       showItemForm: true,
       editingItem: null,
@@ -50,6 +60,10 @@ Page({
   // 打开编辑商品弹窗，缺少旧图标时使用默认奖励图标
   onEditItem(e) {
     const item = e.currentTarget.dataset.item;
+    if (item.can_manage === false) {
+      wx.showToast({ title: '只有家庭创建者可以编辑商品', icon: 'none' });
+      return;
+    }
     this.setData({
       showItemForm: true,
       editingItem: item,
@@ -103,6 +117,10 @@ Page({
 
   onDeleteItem(e) {
     const item = e.currentTarget.dataset.item;
+    if (item.can_manage === false) {
+      wx.showToast({ title: '只有家庭创建者可以删除商品', icon: 'none' });
+      return;
+    }
     wx.showModal({
       title: '确认删除',
       content: `确定要删除「${item.name}」吗？`,

@@ -23,6 +23,7 @@ from api.schemas.reward import (
     CoinTransactionResponse,
     CoinBalanceResponse,
 )
+from api.services.family import get_current_family, get_current_member_role, require_family_owner
 from api.utils.deps import get_current_user
 
 # ============================================
@@ -31,22 +32,35 @@ from api.utils.deps import get_current_user
 reward_router = APIRouter(prefix="/api/reward-items", tags=["奖励商城"])
 
 
+def _reward_item_response(item: RewardItem, can_manage: bool) -> RewardItemResponse:
+    """把奖励商品模型转换成带管理权限的响应"""
+    data = RewardItemResponse.model_validate(item)
+    data.can_manage = can_manage
+    return data
+
+
 @reward_router.get("", response_model=RewardItemListResponse)
 async def list_reward_items(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """获取当前用户配置的所有奖励商品"""
+    """获取当前家庭配置的所有奖励商品"""
+    family = await get_current_family(db, current_user)
+    if not family:
+        return RewardItemListResponse(items=[], total=0, can_manage=False, has_family=False)
+    can_manage = family.owner_user_id == current_user.id
     result = await db.execute(
         select(RewardItem)
-        .where(RewardItem.user_id == current_user.id)
+        .where(RewardItem.family_id == family.id)
         .order_by(RewardItem.sort_order.asc(), RewardItem.created_at.asc())
     )
     items = result.scalars().all()
     
     return RewardItemListResponse(
-        items=[RewardItemResponse.model_validate(item) for item in items],
+        items=[_reward_item_response(item, can_manage) for item in items],
         total=len(items),
+        can_manage=can_manage,
+        has_family=True,
     )
 
 
@@ -64,8 +78,10 @@ async def create_reward_item(
     - **description**: 奖励描述（可选）
     - **icon**: 图标（可选，默认🎁）
     """
+    family = await require_family_owner(db, current_user)
     item = RewardItem(
         user_id=current_user.id,
+        family_id=family.id,
         name=request.name,
         description=request.description,
         coin_cost=request.coin_cost,
@@ -76,7 +92,7 @@ async def create_reward_item(
     await db.flush()
     await db.refresh(item)
     
-    return RewardItemResponse.model_validate(item)
+    return _reward_item_response(item, True)
 
 
 @reward_router.put("/{item_id}", response_model=RewardItemResponse)
@@ -87,10 +103,11 @@ async def update_reward_item(
     db: AsyncSession = Depends(get_db),
 ):
     """更新奖励商品"""
+    family = await require_family_owner(db, current_user)
     result = await db.execute(
         select(RewardItem).where(
             RewardItem.id == item_id,
-            RewardItem.user_id == current_user.id,
+            RewardItem.family_id == family.id,
         )
     )
     item = result.scalar_one_or_none()
@@ -108,7 +125,7 @@ async def update_reward_item(
     await db.flush()
     await db.refresh(item)
     
-    return RewardItemResponse.model_validate(item)
+    return _reward_item_response(item, True)
 
 
 @reward_router.delete("/{item_id}", response_model=dict)
@@ -118,10 +135,11 @@ async def delete_reward_item(
     db: AsyncSession = Depends(get_db),
 ):
     """删除奖励商品"""
+    family = await require_family_owner(db, current_user)
     result = await db.execute(
         select(RewardItem).where(
             RewardItem.id == item_id,
-            RewardItem.user_id == current_user.id,
+            RewardItem.family_id == family.id,
         )
     )
     item = result.scalar_one_or_none()
@@ -144,10 +162,10 @@ async def delete_reward_item(
 coin_router = APIRouter(prefix="/api/children/{child_id}", tags=["奖励币"])
 
 
-async def _verify_child(child_id: UUID, user_id: UUID, db: AsyncSession) -> Child:
-    """验证儿童归属"""
+async def _verify_child(child_id: UUID, family_id: UUID, db: AsyncSession) -> Child:
+    """验证儿童属于当前家庭"""
     result = await db.execute(
-        select(Child).where(Child.id == child_id, Child.user_id == user_id)
+        select(Child).where(Child.id == child_id, Child.family_id == family_id)
     )
     child = result.scalar_one_or_none()
     if not child:
@@ -156,6 +174,15 @@ async def _verify_child(child_id: UUID, user_id: UUID, db: AsyncSession) -> Chil
             detail="未找到该儿童信息",
         )
     return child
+
+
+async def _operator_snapshot(db: AsyncSession, current_user: User) -> dict:
+    """生成奖励币流水操作者快照"""
+    return {
+        "operator_user_id": current_user.id,
+        "operator_role": await get_current_member_role(db, current_user),
+        "operator_nickname": current_user.nickname or current_user.username,
+    }
 
 
 @coin_router.get("/coins", response_model=CoinBalanceResponse)
@@ -171,7 +198,13 @@ async def get_coin_balance(
     
     支持分页查询交易流水记录。
     """
-    child = await _verify_child(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    child = await _verify_child(child_id, family.id, db)
     
     # 查询原始流水后再按奖惩明细拆分，保证“主动收轮滑鞋 +3”这类单条奖励能独立展示。
     result = await db.execute(
@@ -227,6 +260,8 @@ async def get_coin_balance(
                     balance_after=max(0, running_balance),
                     description=reward_record.description,
                     record_date=performance_date_map.get(t.related_performance_id),
+                    operator_role=t.operator_role,
+                    operator_nickname=t.operator_nickname,
                     created_at=reward_record.created_at,
                 ))
             continue
@@ -260,13 +295,19 @@ async def redeem_reward(
     使用奖励币兑换指定奖励商品。
     余额不足时会返回错误。
     """
-    child = await _verify_child(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    child = await _verify_child(child_id, family.id, db)
     
     # 查找奖励商品
     result = await db.execute(
         select(RewardItem).where(
             RewardItem.id == request.reward_item_id,
-            RewardItem.user_id == current_user.id,
+            RewardItem.family_id == family.id,
             RewardItem.is_active == True,
         )
     )
@@ -306,6 +347,7 @@ async def redeem_reward(
         balance_after=child.coin_balance,
         description=f"兑换奖励：{reward_item.name}",
         related_reward_item_id=reward_item.id,
+        **await _operator_snapshot(db, current_user),
     )
     db.add(transaction)
     
@@ -324,7 +366,13 @@ async def list_redemptions(
     db: AsyncSession = Depends(get_db),
 ):
     """获取兑换记录列表"""
-    await _verify_child(child_id, current_user.id, db)
+    family = await get_current_family(db, current_user)
+    if not family:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="请先创建或加入家庭",
+        )
+    await _verify_child(child_id, family.id, db)
     
     count_result = await db.execute(
         select(func.count()).select_from(RedemptionRecord).where(

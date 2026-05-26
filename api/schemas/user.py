@@ -8,6 +8,9 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
+ROLE_OPTIONS = ("爸爸", "妈妈", "爷爷", "奶奶", "外公", "外婆")
+
+
 # ============================================
 # 请求模型
 # ============================================
@@ -37,6 +40,7 @@ class UserUpdateRequest(BaseModel):
     nickname: Optional[str] = Field(None, max_length=50, description="昵称")
     avatar_url: Optional[str] = Field(None, max_length=500, description="头像地址")
     phone: Optional[str] = Field(None, max_length=20, description="手机号码")
+    role: Optional[str] = Field(None, pattern="^(爸爸|妈妈|爷爷|奶奶|外公|外婆)$", description="家庭角色")
 
 
 class ChangePasswordRequest(BaseModel):
@@ -61,6 +65,8 @@ class UserResponse(BaseModel):
     phone: Optional[str] = None
     nickname: Optional[str] = None
     avatar_url: Optional[str] = None
+    role: Optional[str] = None
+    current_family_id: Optional[UUID] = None
     has_password: bool = True
     created_at: datetime
 

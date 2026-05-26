@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.config import settings
 from api.database import init_db
 from api.endpoints.user import router as auth_router, user_router
+from api.endpoints.family import router as family_router
 from api.endpoints.child import router as child_router
 from api.endpoints.performance import router as performance_router
 from api.endpoints.reward import reward_router, coin_router
@@ -61,6 +62,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(auth_router)
 app.include_router(user_router)
+app.include_router(family_router)
 app.include_router(child_router)
 app.include_router(performance_router)
 app.include_router(reward_router)

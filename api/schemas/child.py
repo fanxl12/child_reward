@@ -35,11 +35,13 @@ class ChildUpdateRequest(BaseModel):
 class ChildResponse(BaseModel):
     """儿童信息响应"""
     id: UUID
+    family_id: Optional[UUID] = None
     name: str
     gender: Optional[str] = None
     birthday: Optional[date] = None
     avatar_url: Optional[str] = None
     coin_balance: int = 0
+    can_manage: bool = True
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -49,3 +51,5 @@ class ChildListResponse(BaseModel):
     """儿童列表响应"""
     children: list[ChildResponse]
     total: int
+    can_manage: bool = True
+    has_family: bool = True

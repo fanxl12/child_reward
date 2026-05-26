@@ -38,12 +38,14 @@ class RewardItemUpdateRequest(BaseModel):
 class RewardItemResponse(BaseModel):
     """奖励商品响应"""
     id: UUID
+    family_id: Optional[UUID] = None
     name: str
     description: Optional[str] = None
     coin_cost: int
     icon: str = "🎁"
     sort_order: int = 0
     is_active: bool = True
+    can_manage: bool = True
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -53,6 +55,8 @@ class RewardItemListResponse(BaseModel):
     """奖励商品列表响应"""
     items: list[RewardItemResponse]
     total: int
+    can_manage: bool = True
+    has_family: bool = True
 
 
 # ============================================
@@ -95,6 +99,8 @@ class CoinTransactionResponse(BaseModel):
     balance_after: int
     description: Optional[str] = None
     record_date: Optional[date] = None
+    operator_role: Optional[str] = None
+    operator_nickname: Optional[str] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

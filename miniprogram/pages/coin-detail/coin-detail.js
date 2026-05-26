@@ -67,6 +67,7 @@ Page({
         ...item,
         typeText: this.getTypeText(item.type, item.amount),
         titleText: this.getTitleText(item.type, item.record_date || item.created_at),
+        operatorText: this.getOperatorText(item),
         formattedTime: this.formatDateTime(item.created_at),
       }));
       const mergedTransactions = reset ? newTransactions : transactions.concat(newTransactions);
@@ -106,6 +107,16 @@ Page({
     if (type === 'deduct') return `${dateText} 表现惩罚`;
     if (type === 'redeem') return `${dateText} 兑换奖励`;
     return `${dateText} 奖励币变动`;
+  },
+
+  /**
+   * 展示奖励币修改人，优先展示角色，再补充昵称
+   */
+  getOperatorText(item) {
+    const role = item.operator_role || '';
+    const nickname = item.operator_nickname || '';
+    if (role && nickname) return `${role} ${nickname}`;
+    return role || nickname || '';
   },
 
   /**

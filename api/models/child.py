@@ -11,6 +11,7 @@ from api.database import Base
 
 
 class Child(Base):
+    """儿童信息，归属到家庭后供家庭成员共同记录表现"""
     __tablename__ = "children"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -18,6 +19,9 @@ class Child(Base):
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    family_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=True
     )
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     gender: Mapped[str | None] = mapped_column(String(10), nullable=True)
@@ -54,5 +58,6 @@ class Child(Base):
 
 # 避免循环导入
 from api.models.user import User  # noqa: E402, F401
+from api.models.family import Family  # noqa: E402, F401
 from api.models.performance import PerformanceRecord  # noqa: E402, F401
 from api.models.reward import CoinTransaction, RedemptionRecord  # noqa: E402, F401
