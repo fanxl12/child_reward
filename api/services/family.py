@@ -47,7 +47,8 @@ async def create_family_for_user(db: AsyncSession, user: User, name: str | None 
     db.add(family)
     await db.flush()
 
-    db.add(FamilyMember(family_id=family.id, user_id=user.id))
+    # 创建家庭时只有创建者一个成员，保留默认角色；加入家庭的成员不默认分配角色
+    db.add(FamilyMember(family_id=family.id, user_id=user.id, role="妈妈"))
     user.current_family_id = family.id
     await db.flush()
     await db.refresh(family)

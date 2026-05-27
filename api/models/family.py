@@ -40,7 +40,7 @@ class Family(Base):
 
 
 class FamilyMember(Base):
-    """家庭成员关系，一个用户可以加入多个家庭"""
+    """家庭成员关系，一个用户可以加入多个家庭，角色由用户主动选择"""
     __tablename__ = "family_members"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -52,7 +52,7 @@ class FamilyMember(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    role: Mapped[str] = mapped_column(String(10), nullable=False, default="妈妈", server_default="妈妈")
+    role: Mapped[str | None] = mapped_column(String(10), nullable=True)
     joined_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

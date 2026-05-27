@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database import get_db
+from api.models.family import FamilyMember
 from api.models.user import User
 from api.schemas.user import (
     UserRegisterRequest,
@@ -261,6 +262,19 @@ async def update_me(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="请先创建或加入家庭",
+            )
+        # 同一个家庭内角色不能重复，避免两个成员都显示为同一个身份
+        existing_role = await db.execute(
+            select(FamilyMember).where(
+                FamilyMember.family_id == member.family_id,
+                FamilyMember.user_id != current_user.id,
+                FamilyMember.role == role,
+            )
+        )
+        if existing_role.scalars().first():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"当前家庭已存在{role}角色",
             )
         member.role = role
     

@@ -37,7 +37,7 @@ async def _family_response(db: AsyncSession, family: Family, user: User) -> Fami
         code=family.code,
         owner_user_id=family.owner_user_id,
         is_owner=family.owner_user_id == user.id,
-        role=member.role if member else "妈妈",
+        role=member.role if member else None,
         created_at=family.created_at,
     )
 

@@ -29,7 +29,7 @@ class FamilyResponse(BaseModel):
     code: str
     owner_user_id: UUID
     is_owner: bool = False
-    role: str = "妈妈"
+    role: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

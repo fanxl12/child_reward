@@ -69,3 +69,8 @@ async def init_db():
                     "WHERE wechat_openid IS NOT NULL"
                 )
             )
+
+        # 家庭成员加入时不默认分配角色，角色由用户后续主动选择
+        await conn.execute(text("ALTER TABLE family_members ADD COLUMN IF NOT EXISTS role VARCHAR(10)"))
+        await conn.execute(text("ALTER TABLE family_members ALTER COLUMN role DROP DEFAULT"))
+        await conn.execute(text("ALTER TABLE family_members ALTER COLUMN role DROP NOT NULL"))

@@ -37,7 +37,9 @@ CREATE TABLE IF NOT EXISTS family_members (
 CREATE INDEX IF NOT EXISTS idx_family_members_family_id ON family_members(family_id);
 CREATE INDEX IF NOT EXISTS idx_family_members_user_id ON family_members(user_id);
 ALTER TABLE family_members ALTER COLUMN id SET DEFAULT uuid_generate_v4();
-ALTER TABLE family_members ADD COLUMN IF NOT EXISTS role VARCHAR(10) NOT NULL DEFAULT '妈妈';
+ALTER TABLE family_members ADD COLUMN IF NOT EXISTS role VARCHAR(10);
+ALTER TABLE family_members ALTER COLUMN role DROP DEFAULT;
+ALTER TABLE family_members ALTER COLUMN role DROP NOT NULL;
 
 -- 儿童和奖励商品补家庭字段，保留 user_id 作为历史创建人
 ALTER TABLE children ADD COLUMN IF NOT EXISTS family_id UUID REFERENCES families(id) ON DELETE CASCADE;
@@ -69,11 +71,15 @@ SELECT f.id, f.owner_user_id
 FROM families f
 ON CONFLICT (family_id, user_id) DO NOTHING;
 
--- 历史成员角色迁到家庭成员关系上，后续角色按家庭分别维护
+-- 历史用户自己的默认家庭保留原角色；新加入成员不自动分配角色
 UPDATE family_members fm
-SET role = COALESCE(u.role, '妈妈')
+SET role = u.role
 FROM users u
-WHERE u.id = fm.user_id;
+JOIN families f ON f.owner_user_id = u.id
+WHERE u.id = fm.user_id
+  AND f.id = fm.family_id
+  AND fm.role IS NULL
+  AND u.role IS NOT NULL;
 
 -- 设置用户当前家庭
 UPDATE users u
