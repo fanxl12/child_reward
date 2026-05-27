@@ -12,10 +12,15 @@
         <text wx:else class="avatar-text">?</text>
       </view>
       <view class="profile-info">
+        <!-- 家庭名与角色名用点分隔，角色名点击后复用修改角色弹窗 -->
+        <view wx:if="{{currentFamily}}" class="profile-family-row">
+          <text class="profile-family" bindtap="onSwitchFamily">{{currentFamily.name}}</text>
+          <text class="profile-divider">·</text>
+          <text class="profile-role" bindtap="onEditRole">{{userInfo.role || '未设置'}}</text>
+        </view>
         <text wx:if="{{userInfo.nickname}}" class="profile-name">{{userInfo.nickname}}</text>
         <text wx:elif="{{userInfo.username}}" class="profile-name">{{userInfo.username}}</text>
         <text wx:else class="profile-name">用户</text>
-        <text wx:if="{{currentFamily}}" class="profile-family" bindtap="onSwitchFamily">{{currentFamily.name}} · {{currentFamily.code}}</text>
         <text wx:if="{{userInfo.username}}" class="profile-id">@{{userInfo.username}}</text>
       </view>
     </block>
@@ -37,12 +42,6 @@
       <text class="menu-icon">🏠</text>
       <text class="menu-label">切换家庭</text>
       <text class="menu-value">{{currentFamily ? currentFamily.name : '未选择'}}</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="onEditRole">
-      <text class="menu-icon">🏷️</text>
-      <text class="menu-label">修改角色</text>
-      <text class="menu-value">{{userInfo.role || '未设置'}}</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goToChildren">
@@ -72,6 +71,11 @@
     <view class="menu-item" bindtap="onChangePassword">
       <text class="menu-icon">🔑</text>
       <text class="menu-label">修改密码</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view wx:if="{{isLoggedIn && !userInfo.wechat_bound}}" class="menu-item" bindtap="onBindWechat">
+      <text class="menu-icon">💚</text>
+      <text class="menu-label">绑定微信</text>
       <text class="menu-arrow">›</text>
     </view>
   </view>
@@ -120,11 +124,23 @@
           class="option-item {{currentFamily && currentFamily.id === item.id ? 'option-active' : ''}}"
           wx:for="{{families}}"
           wx:key="id"
-          bindtap="onSelectFamily"
-          data-family="{{item}}"
         >
-          <text>{{item.name}}</text>
-          <text class="option-sub">{{item.code}}{{item.is_owner ? ' · 创建者' : ''}}</text>
+          <view class="family-option-main" bindtap="onSelectFamily" data-family="{{item}}">
+            <text>{{item.name}}</text>
+            <text class="option-sub">{{item.code}}{{item.is_owner ? ' · 我的家庭' : ''}}</text>
+          </view>
+          <view
+            wx:if="{{item.is_owner}}"
+            class="family-edit-btn"
+            catchtap="onEditFamilyFromPicker"
+            data-family="{{item}}"
+          >修改</view>
+          <view
+            wx:if="{{!item.is_owner}}"
+            class="family-leave-btn"
+            catchtap="onLeaveFamily"
+            data-family="{{item}}"
+          >退出</view>
         </view>
       </view>
       <view class="modal-footer">
@@ -138,13 +154,13 @@
   <view class="modal-mask" wx:if="{{showFamilyForm}}" bindtap="onCloseFamilyForm">
     <view class="modal-content" catchtap>
       <view class="modal-header">
-        <text class="modal-title">{{familyFormMode === 'create' ? '创建家庭' : '加入家庭'}}</text>
+        <text class="modal-title">{{familyFormMode === 'create' ? '创建家庭' : (familyFormMode === 'edit' ? '修改家庭名称' : '加入家庭')}}</text>
         <view class="modal-close" bindtap="onCloseFamilyForm">✕</view>
       </view>
       <view class="form-item" style="padding: 0 8rpx;">
         <input
           class="form-input"
-          placeholder="{{familyFormMode === 'create' ? '请输入家庭名称' : '请输入 6 位家庭编号'}}"
+          placeholder="{{familyFormMode === 'join' ? '请输入 6 位家庭编号' : '请输入家庭名称'}}"
           value="{{familyInput}}"
           bindinput="onFamilyInput"
         />

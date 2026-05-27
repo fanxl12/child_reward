@@ -76,14 +76,19 @@
 
 .detail-item {
   display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
   padding: 22rpx 0;
   border-bottom: 1rpx solid var(--color-border);
 }
 
 .detail-item:last-child {
   border-bottom: none;
+}
+
+.detail-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  width: 100%;
 }
 
 .detail-kind {
@@ -148,10 +153,19 @@
   word-break: break-all;
 }
 
-.detail-time,
-.detail-balance {
+.detail-balance,
+.detail-meta {
   font-size: 22rpx;
   color: var(--color-text-hint);
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 4rpx;
+  line-height: 1.4;
+  flex-wrap: wrap;
 }
 
 .detail-amount {

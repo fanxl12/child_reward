@@ -12,6 +12,7 @@ from api.schemas.user import (
     UserRegisterRequest,
     UserLoginRequest,
     WechatLoginRequest,
+    WechatBindRequest,
     UserUpdateRequest,
     ChangePasswordRequest,
     SetPasswordRequest,
@@ -32,6 +33,7 @@ def _user_response(user: User, role: str | None = None) -> UserResponse:
     """构建用户响应，role 表示当前家庭成员角色"""
     data = UserResponse.model_validate(user)
     data.role = role
+    data.wechat_bound = bool(user.wechat_openid)
     return data
 
 
@@ -195,6 +197,48 @@ async def get_me(
 ):
     """获取当前登录用户信息"""
     await ensure_selected_family(db, current_user)
+    member = await get_current_family_member(db, current_user)
+    return _user_response(current_user, member.role if member else None)
+
+
+# 绑定当前登录账号与微信 openid，避免复用微信登录接口误创建新账号
+@user_router.post("/bind-wechat", response_model=UserResponse)
+async def bind_wechat(
+    request: WechatBindRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """为当前账号绑定微信小程序账号"""
+    if current_user.wechat_openid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="当前账号已绑定微信",
+        )
+
+    # 绑定微信必须先通过微信 code 换取 openid，openid 不从前端传入
+    session_data = await wechat_service.code2session(request.code)
+    if not session_data or not session_data.get("openid"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="微信绑定失败，请重试",
+        )
+
+    openid = session_data["openid"]
+    existing = await db.execute(
+        select(User).where(
+            User.wechat_openid == openid,
+            User.id != current_user.id,
+        )
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="该微信已绑定其他账号",
+        )
+
+    current_user.wechat_openid = openid
+    await db.flush()
+    await db.refresh(current_user)
     member = await get_current_family_member(db, current_user)
     return _user_response(current_user, member.role if member else None)
 

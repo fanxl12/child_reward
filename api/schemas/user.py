@@ -34,6 +34,12 @@ class WechatLoginRequest(BaseModel):
     code: str = Field(..., description="微信登录临时凭证 code")
 
 
+# 微信绑定请求，与登录一样只需要小程序临时 code
+class WechatBindRequest(BaseModel):
+    """微信小程序绑定请求"""
+    code: str = Field(..., description="微信登录临时凭证 code")
+
+
 class UserUpdateRequest(BaseModel):
     """用户信息更新请求"""
     username: Optional[str] = Field(None, min_length=3, max_length=50, description="用户名")
@@ -68,6 +74,7 @@ class UserResponse(BaseModel):
     role: Optional[str] = None
     current_family_id: Optional[UUID] = None
     has_password: bool = True
+    wechat_bound: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}

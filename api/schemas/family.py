@@ -12,6 +12,12 @@ class FamilyCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=50, description="家庭名称")
 
 
+# 修改家庭名称请求，只接收新的家庭名称
+class FamilyUpdateRequest(BaseModel):
+    """修改家庭请求"""
+    name: str = Field(..., min_length=1, max_length=50, description="家庭名称")
+
+
 class FamilyJoinRequest(BaseModel):
     """通过家庭编号加入家庭请求"""
     code: str = Field(..., min_length=6, max_length=6, description="家庭编号")

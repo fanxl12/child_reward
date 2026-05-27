@@ -150,6 +150,56 @@ Page({
     }
   },
 
+  // 退出加入的家庭后刷新列表；如果退出的是当前家庭，后端会自动切换到剩余家庭
+  onLeaveFamily(e) {
+    const family = e.currentTarget.dataset.family;
+    if (!family || family.is_owner) return;
+
+    wx.showModal({
+      title: '退出家庭',
+      content: `确定要退出「${family.name}」吗？`,
+      confirmText: '退出',
+      confirmColor: '#FF6B6B',
+      success: async (res) => {
+        if (!res.confirm) return;
+        try {
+          wx.showLoading({ title: '退出中...' });
+          await api.leaveFamily(family.id);
+          app.setCurrentChild(null);
+          await this.refreshUserAndFamilies();
+          wx.hideLoading();
+          wx.showToast({ title: '已退出家庭', icon: 'success' });
+        } catch (err) {
+          wx.hideLoading();
+        }
+      },
+    });
+  },
+
+  // 在家庭列表中修改自己的家庭；后端按当前家庭修改，所以先确保选中目标家庭
+  async onEditFamilyFromPicker(e) {
+    const family = e.currentTarget.dataset.family;
+    if (!family || !family.is_owner) return;
+
+    try {
+      if (family.id !== this.data.currentFamily?.id) {
+        wx.showLoading({ title: '切换中...' });
+        await api.switchFamily(family.id);
+        app.setCurrentChild(null);
+        await this.refreshUserAndFamilies();
+        wx.hideLoading();
+      }
+      this.setData({
+        showFamilyPicker: false,
+        showFamilyForm: true,
+        familyFormMode: 'edit',
+        familyInput: family.name || '',
+      });
+    } catch (err) {
+      wx.hideLoading();
+    }
+  },
+
   onShowCreateFamily() {
     this.setData({
       showFamilyPicker: false,
@@ -186,6 +236,8 @@ Page({
       wx.showLoading({ title: '提交中...' });
       if (this.data.familyFormMode === 'create') {
         await api.createFamily({ name: value });
+      } else if (this.data.familyFormMode === 'edit') {
+        await api.updateCurrentFamily({ name: value });
       } else {
         await api.joinFamily({ code: value.toUpperCase() });
       }
@@ -327,6 +379,36 @@ Page({
       wx.showToast({ title: hasPassword ? '密码修改成功' : '密码设置成功', icon: 'success' });
     } catch (err) {
       wx.hideLoading();
+    }
+  },
+
+  // 当前账号未绑定微信时，允许用户主动绑定当前微信身份
+  async onBindWechat() {
+    if (!app.checkLogin()) return;
+    if (this.data.userInfo.wechat_bound) {
+      wx.showToast({ title: '当前账号已绑定微信', icon: 'none' });
+      return;
+    }
+
+    try {
+      wx.showLoading({ title: '绑定中...' });
+      // 使用微信登录 code 让后端确认当前微信身份，再绑定到当前账号
+      const { code } = await wx.login();
+      if (!code) {
+        wx.hideLoading();
+        wx.showToast({ title: '微信绑定失败，请重试', icon: 'none' });
+        return;
+      }
+
+      const user = await api.bindWechat(code);
+      this.setData({ userInfo: user });
+      app.globalData.userInfo = user;
+      wx.setStorageSync('userInfo', user);
+      wx.hideLoading();
+      wx.showToast({ title: '绑定成功', icon: 'success' });
+    } catch (err) {
+      wx.hideLoading();
+      console.error('微信绑定失败', err);
     }
   },
 

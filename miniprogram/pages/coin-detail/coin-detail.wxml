@@ -28,27 +28,32 @@
         wx:for="{{transactions}}"
         wx:key="id"
       >
-        <view class="detail-kind">
-          <view class="detail-icon {{item.amount >= 0 ? 'icon-reward' : 'icon-punishment'}}">
-            {{item.amount >= 0 ? '🏆' : '⚡'}}
+        <view class="detail-main">
+          <view class="detail-kind">
+            <view class="detail-icon {{item.amount >= 0 ? 'icon-reward' : 'icon-punishment'}}">
+              {{item.amount >= 0 ? '🏆' : '⚡'}}
+            </view>
+            <text class="detail-kind-text {{item.amount >= 0 ? 'kind-positive' : 'kind-negative'}}">
+              {{item.typeText}}
+            </text>
           </view>
-          <text class="detail-kind-text {{item.amount >= 0 ? 'kind-positive' : 'kind-negative'}}">
-            {{item.typeText}}
-          </text>
-        </view>
 
-        <view class="detail-content">
-          <text class="detail-desc">{{item.titleText}}</text>
-          <text class="detail-description" wx:if="{{item.description}}">{{item.description}}</text>
-          <text class="detail-description" wx:if="{{item.operatorText}}">修改人：{{item.operatorText}}</text>
-          <text class="detail-time">{{item.formattedTime}}</text>
-        </view>
+          <view class="detail-content">
+            <text class="detail-desc">{{item.titleText}}</text>
+            <text class="detail-description" wx:if="{{item.description}}">{{item.description}}</text>
+            <!-- 底部元信息：先展示时间，再展示修改人 -->
+            <view class="detail-meta">
+              <text class="detail-time">{{item.formattedTime}}</text>
+              <text class="detail-operator" wx:if="{{item.operatorText}}">修改人：{{item.operatorText}}</text>
+            </view>
+          </view>
 
-        <view class="detail-amount">
-          <text class="detail-coins {{item.amount >= 0 ? 'coins-positive' : 'coins-negative'}}">
-            {{item.amount >= 0 ? '+' : ''}}{{item.amount}} 🪙
-          </text>
-          <text class="detail-balance">余额 {{item.balance_after}}</text>
+          <view class="detail-amount">
+            <text class="detail-coins {{item.amount >= 0 ? 'coins-positive' : 'coins-negative'}}">
+              {{item.amount >= 0 ? '+' : ''}}{{item.amount}} 🪙
+            </text>
+            <text class="detail-balance">余额 {{item.balance_after}}</text>
+          </view>
         </view>
       </view>
     </view>

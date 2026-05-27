@@ -66,6 +66,11 @@ function wechatLogin(code) {
   return request('/api/auth/wechat-login', 'POST', { code });
 }
 
+// 将当前登录账号绑定到当前微信身份
+function bindWechat(code) {
+  return request('/api/users/bind-wechat', 'POST', { code });
+}
+
 function getUserInfo() {
   return request('/api/users/me');
 }
@@ -91,12 +96,22 @@ function createFamily(data) {
   return request('/api/families', 'POST', data);
 }
 
+// 修改当前家庭名称，后端会校验当前用户是否为家庭创建者
+function updateCurrentFamily(data) {
+  return request('/api/families/current', 'PUT', data);
+}
+
 function joinFamily(data) {
   return request('/api/families/join', 'POST', data);
 }
 
 function switchFamily(familyId) {
   return request('/api/families/switch', 'POST', { family_id: familyId });
+}
+
+// 退出加入的家庭，自己的家庭不能退出
+function leaveFamily(familyId) {
+  return request(`/api/families/${familyId}/membership`, 'DELETE');
 }
 
 // ---- 儿童管理 ----
@@ -177,8 +192,8 @@ function updateRedemptionStatus(childId, redemptionId, data) {
 
 module.exports = {
   request,
-  register, login, wechatLogin, getUserInfo, updateUserInfo, changePassword, setPassword,
-  getFamilies, createFamily, joinFamily, switchFamily,
+  register, login, wechatLogin, bindWechat, getUserInfo, updateUserInfo, changePassword, setPassword,
+  getFamilies, createFamily, updateCurrentFamily, joinFamily, switchFamily, leaveFamily,
   getChildren, createChild, updateChild, deleteChild,
   getMonthlyPerformance, getDailyPerformance, createPerformance, updatePerformance, addRewardRecord,
   getRewardItems, createRewardItem, updateRewardItem, deleteRewardItem,

@@ -11,9 +11,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.models.family import Family, FamilyMember
 from api.models.user import User
+from api.schemas.user import ROLE_OPTIONS
 
 
 CODE_CHARS = string.ascii_uppercase + string.digits
+
+
+async def assign_unused_family_role(db: AsyncSession, family_id: UUID) -> str:
+    """为新加入成员分配当前家庭未使用的角色"""
+    result = await db.execute(
+        select(FamilyMember.role).where(
+            FamilyMember.family_id == family_id,
+            FamilyMember.role.is_not(None),
+        )
+    )
+    used_roles = set(result.scalars().all())
+    for role in ROLE_OPTIONS:
+        if role not in used_roles:
+            return role
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="当前家庭角色已分配完",
+    )
 
 
 async def generate_family_code(db: AsyncSession) -> str:
@@ -47,7 +66,7 @@ async def create_family_for_user(db: AsyncSession, user: User, name: str | None 
     db.add(family)
     await db.flush()
 
-    # 创建家庭时只有创建者一个成员，保留默认角色；加入家庭的成员不默认分配角色
+    # 创建家庭时只有创建者一个成员，直接使用默认角色
     db.add(FamilyMember(family_id=family.id, user_id=user.id, role="妈妈"))
     user.current_family_id = family.id
     await db.flush()
