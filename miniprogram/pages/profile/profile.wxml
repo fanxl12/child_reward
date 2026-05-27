@@ -127,7 +127,7 @@
         >
           <view class="family-option-main" bindtap="onSelectFamily" data-family="{{item}}">
             <text>{{item.name}}</text>
-            <text class="option-sub">{{item.code}}{{item.is_owner ? ' · 我的家庭' : ''}}</text>
+            <text class="option-sub">{{item.code}}{{item.is_owner ? ' · 创建者' : ''}}</text>
           </view>
           <view
             wx:if="{{item.is_owner}}"
