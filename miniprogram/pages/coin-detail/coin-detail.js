@@ -110,13 +110,10 @@ Page({
   },
 
   /**
-   * 展示奖励币修改人，优先展示角色，再补充昵称
+   * 展示奖励币修改人角色
    */
   getOperatorText(item) {
-    const role = item.operator_role || '';
-    const nickname = item.operator_nickname || '';
-    if (role && nickname) return `${role} ${nickname}`;
-    return role || nickname || '';
+    return item.operator_role || '';
   },
 
   /**

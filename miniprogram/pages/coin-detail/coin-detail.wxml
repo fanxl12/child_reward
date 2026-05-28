@@ -41,10 +41,10 @@
           <view class="detail-content">
             <text class="detail-desc">{{item.titleText}}</text>
             <text class="detail-description" wx:if="{{item.description}}">{{item.description}}</text>
-            <!-- 底部元信息：先展示时间，再展示修改人 -->
+            <!-- 底部元信息：时间后面直接展示修改人角色 -->
             <view class="detail-meta">
               <text class="detail-time">{{item.formattedTime}}</text>
-              <text class="detail-operator" wx:if="{{item.operatorText}}">修改人：{{item.operatorText}}</text>
+              <text class="detail-operator" wx:if="{{item.operatorText}}">{{item.operatorText}}</text>
             </view>
           </view>
 

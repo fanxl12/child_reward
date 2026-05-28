@@ -243,6 +243,8 @@ async def get_coin_balance(
         reward_records = reward_record_map.get((t.related_performance_id, record_type), [])
 
         if t.type in ("earn", "deduct") and reward_records:
+            # 余额必须按真实发生顺序累加，最终展示排序在下方统一处理
+            ordered_reward_records = sorted(reward_records, key=lambda record: record.created_at)
             total_coins = sum(r.coins for r in reward_records)
             running_balance = (
                 t.balance_after - total_coins
@@ -250,7 +252,7 @@ async def get_coin_balance(
                 else t.balance_after + total_coins
             )
 
-            for reward_record in reward_records:
+            for reward_record in ordered_reward_records:
                 amount = reward_record.coins if t.type == "earn" else -reward_record.coins
                 running_balance = running_balance + amount
                 transaction_items.append(CoinTransactionResponse(
